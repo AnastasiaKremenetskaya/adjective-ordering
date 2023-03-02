@@ -1,10 +1,7 @@
 @prefix ns1: <http://example.com/precedes/> .
 
 [rule1:
-    (?x ns1:precedes ?y)
-    (?y ns1:precedes ?z)
-    equal(?y, ADJMaterial)
-    equal(?x, ADJColour)
+    (?ADJColour ns1:precedes ?ADJMaterial)
     ->
     print("ADJColour precedes ADJMaterial")
 ]
