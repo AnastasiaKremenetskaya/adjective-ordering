@@ -1,0 +1,10 @@
+@prefix ns1: <http://example.com/precedes/> .
+
+<PRON> ns1:precedes <ADJColour> .
+
+<ADJColour> ns1:precedes <ADJMaterial> .
+
+<ADJMaterial> ns1:precedes <NOUN> .
+
+<NOUN> ns1:precedes <PUNCT> .
+

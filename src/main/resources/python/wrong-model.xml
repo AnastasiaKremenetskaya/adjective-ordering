@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:ns1="http://example.com/precedes/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+  <rdf:Description rdf:about="NOUN">
+    <ns1:precedes rdf:resource="PUNCT"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="ADJColour">
+    <ns1:precedes rdf:resource="NOUN"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="ADJMaterial">
+    <ns1:precedes rdf:resource="ADJColour"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="PRON">
+    <ns1:precedes rdf:resource="ADJMaterial"/>
+  </rdf:Description>
+</rdf:RDF>
