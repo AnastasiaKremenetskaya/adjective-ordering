@@ -1,9 +1,6 @@
 package org.example;
 
-import org.apache.jena.rdf.model.InfModel;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
@@ -16,7 +13,7 @@ import java.util.Iterator;
 public class Main {
     static Path path = Paths.get(".").toAbsolutePath().normalize();
     static String data = path.toFile().getAbsolutePath() +
-            "/src/main/resources/python/model.xml";
+            "/src/main/resources/python/wrong-model.xml";
 
     static String rules = path.toFile().getAbsolutePath() +
             "/src/main/resources/rule.rules";
@@ -33,9 +30,17 @@ public class Main {
         InfModel infModel = ModelFactory.createInfModel(reasoner, model);
         ValidityReport validity = infModel.validate();
         if (validity.isValid()) {
-            System.out.println("OK");
-            boolean result = infModel.contains(null, null, ResourceFactory.createResource("rule1"));
-            System.out.println(result);
+            // Get all the resources in the model that have an "ns1:incorrectOrder" property
+            Iterator<Resource> incorrectOrderResources = infModel.listSubjectsWithProperty(
+                    infModel.getProperty("http://example.com/incorrectOrder"));
+
+            // Print out the subjects and objects of the "ns1:incorrectOrder" properties
+            while (incorrectOrderResources.hasNext()) {
+                Resource subject = incorrectOrderResources.next();
+                Resource object = subject.getPropertyResourceValue(
+                        infModel.getProperty("http://example.com/incorrectOrder"));
+                System.out.println("Incorrect order: " + subject.getLocalName() + ", " + object.getLocalName());
+            }
         } else {
             System.out.println("Conflicts");
             for (Iterator<ValidityReport.Report> i = validity.getReports(); i.hasNext(); ) {

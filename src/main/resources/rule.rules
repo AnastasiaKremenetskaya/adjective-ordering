@@ -1,7 +1,9 @@
-@prefix ns1: <http://example.com/precedes/> .
+@prefix ns1: <http://example.com/> .
 
-[rule1:
-    (?ADJColour ns1:precedes ?ADJMaterial)
+[rule2:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJMaterial),
+    (?y rdf:type ns1:ADJColour)
     ->
-    print("ADJColour precedes ADJMaterial")
+    (?x ns1:incorrectOrder ?y)
 ]
