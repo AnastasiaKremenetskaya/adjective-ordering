@@ -1,19 +1,32 @@
 package org.example;
 
+import com.github.jsonldjava.shaded.com.google.common.collect.ImmutableMap;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
 import org.apache.jena.reasoner.rulesys.Rule;
+import org.apache.jena.vocabulary.RDFS;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
 public class Main {
+    static final ImmutableMap<String, String> ADJ_DESCRIPTIONS = ImmutableMap.<String, String>builder()
+            .put("ADJOpinion", "Мнение")
+            .put("ADJSize", "Размер")
+            .put("ADJAge", "Возраст")
+            .put("ADJShape", "Форма")
+            .put("ADJColour", "Цвет")
+            .put("ADJOrigin", "Национальность")
+            .put("ADJMaterial", "Материал")
+            .put("ADJPurpose", "Цель")
+            .build();
+
     static Path path = Paths.get(".").toAbsolutePath().normalize();
     static String data = path.toFile().getAbsolutePath() +
-            "/src/main/resources/python/wrong-model.xml";
+            "/src/main/resources/python/model.xml";
 
     static String rules = path.toFile().getAbsolutePath() +
             "/src/main/resources/rule.rules";
@@ -39,7 +52,15 @@ public class Main {
                 Resource subject = incorrectOrderResources.next();
                 Resource object = subject.getPropertyResourceValue(
                         infModel.getProperty("http://example.com/incorrectOrder"));
-                System.out.println("Incorrect order: " + subject.getLocalName() + ", " + object.getLocalName());
+                String firstWord = subject.getProperty(RDFS.label).getString();
+                String firstWordPOS = ADJ_DESCRIPTIONS.get(subject.getLocalName());
+                String secondWord = object.getProperty(RDFS.label).getString();
+                String secondWordPOS = ADJ_DESCRIPTIONS.get(object.getLocalName());
+                String result = secondWord + " должно находиться перед " + firstWord;
+                result += ", так как прилагательное, относящееся к категории " + secondWordPOS;
+                result += ", должно находиться перед прилагательным, относящимся к категории " + firstWordPOS;
+
+                System.out.println(result);
             }
         } else {
             System.out.println("Conflicts");

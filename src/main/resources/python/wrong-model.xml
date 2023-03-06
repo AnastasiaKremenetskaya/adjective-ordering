@@ -1,18 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF
-   xmlns:ns1="http://example.com/"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:ns1="http://example.com/"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 >
-  <rdf:Description rdf:about="NOUN">
-    <ns1:precedes rdf:resource="PUNCT"/>
+  <rdf:Description rdf:about="http://example.com/ADJColour">
+    <rdf:type rdf:resource="http://example.com/ADJColour"/>
+    <rdfs:label>purple</rdfs:label>
+    <ns1:precedes rdf:resource="http://example.com/NOUN"/>
   </rdf:Description>
-  <rdf:Description rdf:about="ADJColour">
-    <ns1:precedes rdf:resource="NOUN"/>
+  <rdf:Description rdf:about="http://example.com/NOUN">
+    <rdf:type rdf:resource="http://example.com/NOUN"/>
+    <rdfs:label>carpet</rdfs:label>
+    <ns1:precedes rdf:resource="http://example.com/PUNCT"/>
   </rdf:Description>
-  <rdf:Description rdf:about="ADJMaterial">
-    <ns1:precedes rdf:resource="ADJColour"/>
+  <rdf:Description rdf:about="http://example.com/PRON">
+    <rdf:type rdf:resource="http://example.com/PRON"/>
+    <rdfs:label>His</rdfs:label>
+    <ns1:precedes rdf:resource="http://example.com/ADJMaterial"/>
   </rdf:Description>
-  <rdf:Description rdf:about="PRON">
-    <ns1:precedes rdf:resource="ADJMaterial"/>
+  <rdf:Description rdf:about="http://example.com/PUNCT">
+    <rdf:type rdf:resource="http://example.com/PUNCT"/>
+    <rdfs:label>carpet</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.com/ADJMaterial">
+    <rdf:type rdf:resource="http://example.com/ADJMaterial"/>
+    <rdfs:label>wool</rdfs:label>
+    <ns1:precedes rdf:resource="http://example.com/ADJColour"/>
   </rdf:Description>
 </rdf:RDF>

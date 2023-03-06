@@ -1,9 +1,246 @@
 @prefix ns1: <http://example.com/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-[rule2:
+# ------PRECEDES ADJOpinion Errors------
+
+[opinionRule1:
     (?x ns1:precedes ?y),
-    (?x rdf:type ns1:ADJMaterial),
+    (?x rdf:type ns1:ADJSize)
+    (?y rdf:type ns1:ADJOpinion)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[opinionRule2:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJAge)
+    (?y rdf:type ns1:ADJOpinion)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[opinionRule3:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJShape)
+    (?y rdf:type ns1:ADJOpinion)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[opinionRule4:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJColour)
+    (?y rdf:type ns1:ADJOpinion)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[opinionRule5:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJOrigin)
+    (?y rdf:type ns1:ADJOpinion)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[opinionRule6:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJMaterial)
+    (?y rdf:type ns1:ADJOpinion)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[opinionRule7:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJPurpose)
+    (?y rdf:type ns1:ADJOpinion)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+
+# ------PRECEDES ADJSize Errors------
+
+[sizeRule1:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJAge)
+    (?y rdf:type ns1:ADJSize)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[sizeRule2:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJShape)
+    (?y rdf:type ns1:ADJSize)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[sizeRule3:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJColour)
+    (?y rdf:type ns1:ADJSize)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[sizeRule4:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJOrigin)
+    (?y rdf:type ns1:ADJSize)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[sizeRule5:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJMaterial)
+    (?y rdf:type ns1:ADJSize)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[sizeRule6:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJPurpose)
+    (?y rdf:type ns1:ADJSize)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+
+# ------PRECEDES ADJAge Errors------
+
+[ageRule1:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJShape)
+    (?y rdf:type ns1:ADJAge)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[ageRule2:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJColour)
+    (?y rdf:type ns1:ADJAge)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[ageRule3:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJOrigin)
+    (?y rdf:type ns1:ADJAge)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[ageRule4:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJMaterial)
+    (?y rdf:type ns1:ADJAge)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[ageRule5:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJPurpose)
+    (?y rdf:type ns1:ADJAge)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+
+# ------PRECEDES ADJShape Errors------
+
+[shapeRule1:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJColour)
+    (?y rdf:type ns1:ADJShape)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[shapeRule2:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJOrigin)
+    (?y rdf:type ns1:ADJShape)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[shapeRule3:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJMaterial)
+    (?y rdf:type ns1:ADJShape)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[shapeRule4:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJPurpose)
+    (?y rdf:type ns1:ADJShape)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+
+# ------PRECEDES ADJColour Errors------
+
+[colourRule1:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJOrigin)
     (?y rdf:type ns1:ADJColour)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[colourRule2:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJMaterial)
+    (?y rdf:type ns1:ADJColour)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[colourRule3:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJPurpose)
+    (?y rdf:type ns1:ADJColour)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+
+# ------PRECEDES ADJOrigin Errors------
+
+[originRule1:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJMaterial)
+    (?y rdf:type ns1:ADJOrigin)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+[originRule2:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJPurpose)
+    (?y rdf:type ns1:ADJOrigin)
+    ->
+    (?x ns1:incorrectOrder ?y)
+]
+
+
+# ------PRECEDES ADJMaterial Errors------
+
+[materialRule1:
+    (?x ns1:precedes ?y),
+    (?x rdf:type ns1:ADJPurpose)
+    (?y rdf:type ns1:ADJMaterial)
     ->
     (?x ns1:incorrectOrder ?y)
 ]
