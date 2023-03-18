@@ -1,18 +1,27 @@
-package org.example;
+package com.grpc;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.ImmutableMap;
-import org.apache.jena.rdf.model.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.jena.rdf.model.InfModel;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
 import org.apache.jena.reasoner.rulesys.Rule;
 import org.apache.jena.vocabulary.RDFS;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
-public class Main {
+public class AdjectiveOrderChecker {
     static final ImmutableMap<String, String> ADJ_DESCRIPTIONS = ImmutableMap.<String, String>builder()
             .put("ADJOpinion", "Мнение")
             .put("ADJSize", "Размер")
@@ -25,16 +34,15 @@ public class Main {
             .build();
 
     static Path path = Paths.get(".").toAbsolutePath().normalize();
-    static String data = path.toFile().getAbsolutePath() +
-            "/src/main/resources/python/model.xml";
-
     static String rules = path.toFile().getAbsolutePath() +
             "/src/main/resources/rule.rules";
 
-    public static void main(String[] args) {
+    public static OrderCheckerResult getAdjectiveOrderingErrors(String RDFinXMLFormat) {
+        List<String> adjectiveOrderingErrors = new ArrayList<String>();
+        List<String> modelValidationErrors = new ArrayList<String>();
+
         // Load RDF data
-        Model model = ModelFactory.createDefaultModel().read(data);
-        model.read(data);
+        Model model = ModelFactory.createDefaultModel().read(IOUtils.toInputStream(RDFinXMLFormat, "UTF-8"), null);
 
         // Load rules
         Reasoner reasoner = new GenericRuleReasoner(Rule.rulesFromURL(rules));
@@ -57,16 +65,17 @@ public class Main {
                 String secondWord = object.getProperty(RDFS.label).getString();
                 String secondWordPOS = ADJ_DESCRIPTIONS.get(object.getLocalName());
                 String result = secondWord + " должно находиться перед " + firstWord;
-                result += ", так как прилагательное, относящееся к категории " + secondWordPOS;
-                result += ", должно находиться перед прилагательным, относящимся к категории " + firstWordPOS;
+                result += ", так как прилагательное, описывающее " + secondWordPOS;
+                result += ", должно находиться перед прилагательным, описывающим " + firstWordPOS;
 
-                System.out.println(result);
+                adjectiveOrderingErrors.add(result);
             }
         } else {
-            System.out.println("Conflicts");
             for (Iterator<ValidityReport.Report> i = validity.getReports(); i.hasNext(); ) {
-                System.out.println(" - " + i.next());
+                adjectiveOrderingErrors.add(i.next().toString());
             }
         }
+
+        return new OrderCheckerResult(adjectiveOrderingErrors, modelValidationErrors);
     }
 }

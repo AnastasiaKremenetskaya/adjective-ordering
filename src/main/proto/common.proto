@@ -1,0 +1,21 @@
+syntax = "proto3";
+option java_multiple_files = true;
+package com.gpch.grpc.protobuf;
+
+service SentenceCheckerService {
+  rpc CheckRDF(CheckRDFRequest) returns (CheckRDFResponse) {};
+}
+
+message CheckRDFRequest {
+  string xml_with_rdf = 1;
+  string namespace = 2;
+}
+
+message CheckRDFResponse {
+  repeated string adj_ordering_errors = 1;
+  repeated string rdf_model_validation_errors = 2;
+}
+
+message File {
+  bytes content = 1;
+}
