@@ -10,8 +10,8 @@ import org.apache.jena.reasoner.Reasoner;
 import org.apache.jena.reasoner.ValidityReport;
 import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
 import org.apache.jena.reasoner.rulesys.Rule;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -61,9 +61,9 @@ public class AdjectiveOrderChecker {
                 Resource object = subject.getPropertyResourceValue(
                         infModel.getProperty("http://example.com/incorrectOrder"));
                 String firstWord = subject.getProperty(RDFS.label).getString();
-                String firstWordPOS = ADJ_DESCRIPTIONS.get(subject.getLocalName());
+                String firstWordPOS = ADJ_DESCRIPTIONS.get(subject.getPropertyResourceValue(RDF.type).getLocalName());
                 String secondWord = object.getProperty(RDFS.label).getString();
-                String secondWordPOS = ADJ_DESCRIPTIONS.get(object.getLocalName());
+                String secondWordPOS = ADJ_DESCRIPTIONS.get(object.getPropertyResourceValue(RDF.type).getLocalName());
                 String result = secondWord + " должно находиться перед " + firstWord;
                 result += ", так как прилагательное, описывающее " + secondWordPOS;
                 result += ", должно находиться перед прилагательным, описывающим " + firstWordPOS;
@@ -76,6 +76,13 @@ public class AdjectiveOrderChecker {
             }
         }
 
-        return new OrderCheckerResult(adjectiveOrderingErrors, modelValidationErrors);
+        OrderCheckerResult res = new OrderCheckerResult(adjectiveOrderingErrors, modelValidationErrors);
+        for (String err:res.getAdjectiveOrderingErrors()) {
+            System.out.println(err);
+        }
+        for (String err:res.getModelValidationErrors()) {
+            System.out.println(err);
+        }
+        return res;
     }
 }

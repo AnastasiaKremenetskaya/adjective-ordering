@@ -5,6 +5,8 @@
 
 [opinionRule1:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJSize)
     (?y rdf:type ns1:ADJOpinion)
     ->
@@ -13,6 +15,8 @@
 
 [opinionRule2:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJAge)
     (?y rdf:type ns1:ADJOpinion)
     ->
@@ -21,6 +25,8 @@
 
 [opinionRule3:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJShape)
     (?y rdf:type ns1:ADJOpinion)
     ->
@@ -29,6 +35,8 @@
 
 [opinionRule4:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJColour)
     (?y rdf:type ns1:ADJOpinion)
     ->
@@ -37,6 +45,8 @@
 
 [opinionRule5:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJOrigin)
     (?y rdf:type ns1:ADJOpinion)
     ->
@@ -45,6 +55,8 @@
 
 [opinionRule6:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJMaterial)
     (?y rdf:type ns1:ADJOpinion)
     ->
@@ -53,6 +65,8 @@
 
 [opinionRule7:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJPurpose)
     (?y rdf:type ns1:ADJOpinion)
     ->
@@ -64,6 +78,8 @@
 
 [sizeRule1:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJAge)
     (?y rdf:type ns1:ADJSize)
     ->
@@ -72,6 +88,8 @@
 
 [sizeRule2:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJShape)
     (?y rdf:type ns1:ADJSize)
     ->
@@ -80,6 +98,8 @@
 
 [sizeRule3:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJColour)
     (?y rdf:type ns1:ADJSize)
     ->
@@ -88,6 +108,8 @@
 
 [sizeRule4:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJOrigin)
     (?y rdf:type ns1:ADJSize)
     ->
@@ -96,6 +118,8 @@
 
 [sizeRule5:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJMaterial)
     (?y rdf:type ns1:ADJSize)
     ->
@@ -104,6 +128,8 @@
 
 [sizeRule6:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJPurpose)
     (?y rdf:type ns1:ADJSize)
     ->
@@ -115,6 +141,8 @@
 
 [ageRule1:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJShape)
     (?y rdf:type ns1:ADJAge)
     ->
@@ -123,6 +151,8 @@
 
 [ageRule2:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJColour)
     (?y rdf:type ns1:ADJAge)
     ->
@@ -131,6 +161,8 @@
 
 [ageRule3:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJOrigin)
     (?y rdf:type ns1:ADJAge)
     ->
@@ -139,6 +171,8 @@
 
 [ageRule4:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJMaterial)
     (?y rdf:type ns1:ADJAge)
     ->
@@ -147,6 +181,8 @@
 
 [ageRule5:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJPurpose)
     (?y rdf:type ns1:ADJAge)
     ->
@@ -158,6 +194,8 @@
 
 [shapeRule1:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJColour)
     (?y rdf:type ns1:ADJShape)
     ->
@@ -166,6 +204,8 @@
 
 [shapeRule2:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJOrigin)
     (?y rdf:type ns1:ADJShape)
     ->
@@ -174,6 +214,8 @@
 
 [shapeRule3:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJMaterial)
     (?y rdf:type ns1:ADJShape)
     ->
@@ -182,6 +224,8 @@
 
 [shapeRule4:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJPurpose)
     (?y rdf:type ns1:ADJShape)
     ->
@@ -193,6 +237,8 @@
 
 [colourRule1:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJOrigin)
     (?y rdf:type ns1:ADJColour)
     ->
@@ -201,6 +247,8 @@
 
 [colourRule2:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJMaterial)
     (?y rdf:type ns1:ADJColour)
     ->
@@ -209,6 +257,8 @@
 
 [colourRule3:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJPurpose)
     (?y rdf:type ns1:ADJColour)
     ->
@@ -220,6 +270,8 @@
 
 [originRule1:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJMaterial)
     (?y rdf:type ns1:ADJOrigin)
     ->
@@ -228,6 +280,8 @@
 
 [originRule2:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJPurpose)
     (?y rdf:type ns1:ADJOrigin)
     ->
@@ -239,6 +293,8 @@
 
 [materialRule1:
     (?x ns1:precedes ?y),
+    (?x ns1:is_child ?z),
+    (?y ns1:is_child ?z),
     (?x rdf:type ns1:ADJPurpose)
     (?y rdf:type ns1:ADJMaterial)
     ->

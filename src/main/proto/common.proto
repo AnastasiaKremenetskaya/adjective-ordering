@@ -4,6 +4,7 @@ package com.gpch.grpc.protobuf;
 
 service SentenceCheckerService {
   rpc CheckRDF(CheckRDFRequest) returns (CheckRDFResponse) {};
+  rpc ValidateTokenPosition(ValidateTokenPositionRequest) returns (ValidateTokenPositionResponse) {};
 }
 
 message CheckRDFRequest {
@@ -16,6 +17,12 @@ message CheckRDFResponse {
   repeated string rdf_model_validation_errors = 2;
 }
 
-message File {
-  bytes content = 1;
+message ValidateTokenPositionRequest {
+  map<string,string> tokens = 1;
+  string tokenToCheck = 2;
+  uint32 numberOfTask = 3;
+}
+
+message ValidateTokenPositionResponse {
+  string error = 1;
 }

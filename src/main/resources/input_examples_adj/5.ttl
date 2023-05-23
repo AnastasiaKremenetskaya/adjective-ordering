@@ -1,0 +1,55 @@
+@prefix ns1: <http://example.com/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ns1:item_0 a ns1:ADJ ;
+           rdfs:label "Amazing" ;
+           ns1:hasHypernym ns1:Material ;
+           ns1:isChild ns1:item_9 ;
+           ns1:tokenPrecedes ns1:item_1 .
+
+ns1:item_1 a ns1:ADJ ;
+           rdfs:label "young" ;
+           ns1:hasHypernym ns1:Age ;
+           ns1:isChild ns1:item_9 ;
+           ns1:tokenPrecedes ns1:item_2 .
+
+ns1:item_2 a ns1:ADJ ;
+           rdfs:label "big" ;
+           ns1:hasHypernym ns1:Size ;
+           ns1:isChild ns1:item_6 ;
+           ns1:tokenPrecedes ns1:item_3 ;
+           <http://www.vstu.ru/poas/code#var...> "X" .
+
+ns1:item_3 a ns1:PUNCT ;
+           rdfs:label "-" ;
+           ns1:isChild ns1:item_6 ;
+           ns1:tokenPrecedes ns1:item_4 .
+
+ns1:item_4 a ns1:ADJ ;
+           rdfs:label "amazing" ;
+           ns1:hasHypernym ns1:Opinion ;
+           ns1:isChild ns1:item_6 ;
+           ns1:tokenPrecedes ns1:item_5 .
+
+ns1:item_5 a ns1:PUNCT ;
+           rdfs:label "-" ;
+           ns1:isChild ns1:item_6 ;
+           ns1:tokenPrecedes ns1:item_6 .
+
+ns1:item_7 a ns1:PUNCT ;
+           rdfs:label "-" ;
+           ns1:isChild ns1:item_8 ;
+           ns1:tokenPrecedes ns1:item_8 .
+
+ns1:item_8 a ns1:NOUN ;
+           rdfs:label "cod" ;
+           ns1:isChild ns1:item_9 ;
+           ns1:tokenPrecedes ns1:item_9 .
+
+ns1:item_9 a ns1:NOUN ;
+           rdfs:label "sellers" .
+
+ns1:item_6 a ns1:NOUN ;
+           rdfs:label "taste" ;
+           ns1:isChild ns1:item_8 ;
+           ns1:tokenPrecedes ns1:item_7 .
