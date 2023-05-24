@@ -1,4 +1,6 @@
 package com.grpc
+
+import com.gpch.grpc.protobuf.Language
 import its.model.*
 import its.model.dictionaries.*
 import its.reasoner.LearningSituation
@@ -7,7 +9,9 @@ import its.reasoner.nodes.DecisionTreeReasoner._static.getTrace
 import org.apache.jena.vocabulary.RDFS
 
 class Solver(
+    language: Language,
 ) {
+    private val lang = language
     init {
         DomainModel(
             ClassesDictionary(),
@@ -21,42 +25,24 @@ class Solver(
 
     private var model: LearningSituation = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
 
-    private var areHypernymsOrdered = "В одинаковом ли порядке расположены токены X и Y -- и гиперонимы X' и Y'?"
-    private var isXLeftToY = "Токен X слева от токена Y?"
-    private var isYLeftToX = "Токен Y слева от токена X?"
-
-    private val ERRORS_EXPLANATION = mapOf(
-        areHypernymsOrdered to "%s должно находиться перед %s, \n" +
-                "так как прилагательное, \n" +
-                "описывающее %s,\n" +
-                "должно находиться перед прилагательным, \n" +
-                "описывающим %s",
-        isYLeftToX to "%s должно находиться перед %s, \n" +
-                "так как слово, являющееся дочерним,\n" +
-                "должно находиться левее",
-        isXLeftToY to "%s должно находиться перед %s, \n" +
-                "так как слово, являющееся дочерним,\n" +
-                "должно находиться левее",
-    )
-
-    fun solve() :OrderCheckerResult {
+    fun solve(tokenId: String): ValidateTokenPositionResult {
         //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
         val answer = DomainModel.decisionTree.main.getAnswer(model) //Получить тру/фолс ответ
         val trace =
             DomainModel.decisionTree.main.getTrace(model) //Получить посещенные узлы по всему дереву - в порядке полного вычисления
 
         if (answer) {
-            return OrderCheckerResult(arrayListOf(), arrayListOf())
+            return ValidateTokenPositionResult(arrayListOf(), tokenId)
         }
 
         val errorQuestion = trace[trace.size - 3].additionalInfo["label"].toString()
-//        println(errorQuestion)
-        val errorExplanation = ERRORS_EXPLANATION[trace[trace.size - 3].additionalInfo["label"].toString()]
+        val errorExplanation =
+            ERRORS_EXPLANATION[lang]?.get(trace[trace.size - 3].additionalInfo["label"].toString())
 
         val xVar = model.decisionTreeVariables["X"]
         val yVar = model.decisionTreeVariables["Y"]
         if (xVar == null || yVar == null || errorExplanation == null) {
-            return OrderCheckerResult(arrayListOf(), arrayListOf())
+            return ValidateTokenPositionResult(arrayListOf(), "")
         }
         var res = ""
         if (errorQuestion == isXLeftToY) {
@@ -67,7 +53,7 @@ class Solver(
             res = getHypernymOrderingError(yVar, xVar, errorExplanation)
         }
 
-        return OrderCheckerResult(arrayListOf(res), arrayListOf())
+        return ValidateTokenPositionResult(arrayListOf(res), tokenId)
     }
 
     private fun getNodeLabel(decisionTreeVar: String): String {
@@ -79,7 +65,7 @@ class Solver(
         val iter = model.model.getResource(NAMESPACE + decisionTreeVar).listProperties(hasHypernym)
         while (iter.hasNext()) {
             val stmt = iter.nextStatement()
-            return stmt.resource.localName
+            return HYPERNYMS[lang]?.get(stmt.resource.localName) ?: ""
         }
         return ""
     }
@@ -109,13 +95,71 @@ class Solver(
     }
 
     companion object {
-//        const val DIR_PATH_TO_TASK =
-//            "/Users/anterekhova/IdeaProjects/adjective-ordering/src/main/resources/input_examples_adj2/"
         const val DIR_PATH_TO_TASK =
             "src/main/resources/input_examples_adj/"
         const val TTL_FILENAME =
             "task"
         const val NAMESPACE =
             "http://www.vstu.ru/poas/code#"
+
+        private var areHypernymsOrdered = "В одинаковом ли порядке расположены токены X и Y -- и гиперонимы X' и Y'?"
+        private var isXLeftToY = "Токен X слева от токена Y?"
+        private var isYLeftToX = "Токен Y слева от токена X?"
+
+        private val ERRORS_EXPLANATION_RU = mapOf(
+            areHypernymsOrdered to "%s должно находиться перед %s, \n" +
+                    "так как прилагательное, \n" +
+                    "описывающее %s,\n" +
+                    "должно находиться перед прилагательным, \n" +
+                    "описывающим %s",
+            isYLeftToX to "%s должно находиться перед %s, \n" +
+                    "так как слово, являющееся дочерним,\n" +
+                    "должно находиться левее",
+            isXLeftToY to "%s должно находиться перед %s, \n" +
+                    "так как слово, являющееся дочерним,\n" +
+                    "должно находиться левее",
+        )
+
+        private val ERRORS_EXPLANATION_EN = mapOf(
+            areHypernymsOrdered to "%s should precede %s, \n" +
+                    "because adjective that describes %s,\n" +
+                    "should precede adjective that describes %s",
+            isYLeftToX to "%s should precede %s, \n" +
+                    "because child word should be left to parent word",
+            isXLeftToY to "%s should precede %s, \n" +
+                    "because child word should be left to parent word",
+        )
+
+        private val ERRORS_EXPLANATION = mapOf(
+            Language.RU to ERRORS_EXPLANATION_RU,
+            Language.EN to ERRORS_EXPLANATION_EN,
+        )
+
+        private val HYPERNYMS_RU = mapOf(
+            "Opinion" to "Мнение",
+            "Size" to "Размер",
+            "Age" to "Возраст",
+            "Shape" to "Форма",
+            "Colour" to "Цвет",
+            "Origin" to "Национальность",
+            "Material" to "Материал",
+            "Purpose" to "Цель",
+        )
+
+        private val HYPERNYMS_EN = mapOf(
+            "Opinion" to "Opinion",
+            "Size" to "Size",
+            "Age" to "Age",
+            "Shape" to "Shape",
+            "Colour" to "Colour",
+            "Origin" to "Origin",
+            "Material" to "Material",
+            "Purpose" to "Purpose",
+        )
+
+        private val HYPERNYMS = mapOf(
+            Language.RU to HYPERNYMS_RU,
+            Language.EN to HYPERNYMS_EN,
+        )
     }
 }

@@ -1,16 +1,14 @@
 package com.grpc;
 
+import com.gpch.grpc.protobuf.Language;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.io.*;
-import java.util.*;
 
 @SpringBootApplication
 public class ServiceApplication {
@@ -18,19 +16,27 @@ public class ServiceApplication {
 //    static String rules = path.toFile().getAbsolutePath() +"/src/main/resources/python/model.xml";
 
     public static void main(String[] args) throws IOException {
-        Map<String, String> tokens = new LinkedHashMap<>();
-        tokens.put("item_0","beautiful");
-        tokens.put("","The");
-        tokens.put("item_2","books");
+        SpringApplication.run(ServiceApplication.class, args);
 
-        OrderCheckerResult res = new StudentResponseFormatter(
-                1,
-                tokens,
-                "The"
-        ).checkTokenPosition();
-        System.out.println(res.getAdjectiveOrderingErrors());
-//        String content = new String(Files.readAllBytes(Paths.get(rules)));
-//        SpringApplication.run(ServiceApplication.class, args);
-//        AdjectiveOrderChecker.getAdjectiveOrderingErrors(content);
+
+//        String content = new String(Files.readAllBytes(Path.of("/Users/anterekhova/IdeaProjects/adjective-ordering/src/main/resources/input_examples_adj/2.ttl")));
+//
+//        Map<String, String> tokens = new LinkedHashMap<>();
+//        tokens.put("item_0", "The");
+//        tokens.put("", "Japanese");
+//        tokens.put("item_2", "beautiful");
+//        tokens.put("item_3", "books");
+//
+//        ValidateTokenPositionResult res = new ValidateTokenPosition(
+//                Language.EN,
+//                content,
+//                tokens,
+//                "Japanese"
+//        ).checkTokenPosition();
+//        System.out.println(res.getErrors());
+//        System.out.println(res.getTokenId());
+
+//        GetTaskSetupResult res = new GetTaskSetup().getTask(content);
+//        System.out.println(res);
     }
 }

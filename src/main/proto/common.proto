@@ -3,26 +3,32 @@ option java_multiple_files = true;
 package com.gpch.grpc.protobuf;
 
 service SentenceCheckerService {
-  rpc CheckRDF(CheckRDFRequest) returns (CheckRDFResponse) {};
   rpc ValidateTokenPosition(ValidateTokenPositionRequest) returns (ValidateTokenPositionResponse) {};
-}
-
-message CheckRDFRequest {
-  string xml_with_rdf = 1;
-  string namespace = 2;
-}
-
-message CheckRDFResponse {
-  repeated string adj_ordering_errors = 1;
-  repeated string rdf_model_validation_errors = 2;
+  rpc GetTaskSetup(GetTaskSetupRequest) returns (GetTaskSetupResponse) {};
 }
 
 message ValidateTokenPositionRequest {
-  map<string,string> tokens = 1;
+  map<string,string> tokens = 1; // item_0: The
   string tokenToCheck = 2;
-  uint32 numberOfTask = 3;
+  string taskInTTLFormat = 3;
+  Language lang = 4;
 }
 
 message ValidateTokenPositionResponse {
-  string error = 1;
+  repeated string validation_errors = 1;
+  string tokenId = 2;
+}
+
+message GetTaskSetupRequest {
+  string taskInTTLFormat = 1;
+}
+
+message GetTaskSetupResponse {
+  string task = 1;
+  map<string,string> tokens = 2; // item_0: The
+}
+
+enum Language {
+  RU = 0;
+  EN = 1;
 }

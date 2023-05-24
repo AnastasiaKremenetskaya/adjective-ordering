@@ -1,9 +1,11 @@
 package com.grpc
 
+import com.gpch.grpc.protobuf.Language
 import com.grpc.Solver.Companion.DIR_PATH_TO_TASK
 import com.grpc.Solver.Companion.NAMESPACE
 import org.apache.jena.query.*
 import org.apache.jena.rdf.model.Model
+import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Property
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.riot.RDFDataMgr
@@ -11,15 +13,16 @@ import java.io.File
 import java.io.StringWriter
 
 
-class StudentResponseFormatter(
-    private val numberOfTask: Int,
+class ValidateTokenPosition(
+    language: Language,
+    taskInTTLFormat: String,
     private val tokens: Map<String, String>, // key - item_0, value - word
     private val tokenToCheck: String // word
 ) {
-    private var ns1 = "http://www.vstu.ru/poas/code#"
-    private var model: Model = RDFDataMgr.loadModel("$DIR_PATH_TO_TASK$numberOfTask.ttl")
+    private var model: Model = ModelFactory.createDefaultModel().read(taskInTTLFormat.byteInputStream(Charsets.UTF_8), null, "TTL")
+    private val lang = language
 
-    fun checkTokenPosition(): OrderCheckerResult {
+    fun checkTokenPosition(): ValidateTokenPositionResult {
         var hypotheses = arrayOf<Resource>()
 
         // Получить узел с токеном, который надо проверить
@@ -47,12 +50,14 @@ class StudentResponseFormatter(
         queryExecution.close()
 
         // для всех гипотез проверить на ошибки
-        val p: Property = model.createProperty(ns1 + "tokenPrecedes")
-        val x: Property = model.createProperty(ns1 + "var...")
+        val p: Property = model.createProperty(NAMESPACE + "tokenPrecedes")
+        val x: Property = model.createProperty(NAMESPACE + "var...")
         var prevToken: Resource? = null
         var currentToken: Resource
 
-        hypotheses.forEach { hypothesis ->
+//        val errorsCountForHypothesisId = emptyMap<Int, String>()
+
+        hypotheses.forEachIndexed { hypothesesIndex, hypothesis ->
             val hypothesisModel: Model = model
             tokens.forEach { entry ->
                 if (entry.value == tokenToCheck) {
@@ -75,9 +80,11 @@ class StudentResponseFormatter(
 
             File("$DIR_PATH_TO_TASK${Solver.TTL_FILENAME}.ttl").writeText(content)
 
-            // TODO return если 0 ошибок, иначе проверить другие гипотезы
-            return Solver().solve()
+            val res = Solver(lang).solve(hypothesis.localName)
+            if (res.errors.isEmpty() || hypothesesIndex == hypotheses.size-1) {
+                return res
+            }
         }
-        return OrderCheckerResult(arrayListOf(), arrayListOf())
+        return ValidateTokenPositionResult(arrayListOf(), "")
     }
 }
