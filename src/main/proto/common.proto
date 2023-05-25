@@ -16,7 +16,8 @@ message ValidateTokenPositionRequest {
 
 message ValidateTokenPositionResponse {
   repeated string validation_errors = 1;
-  string tokenId = 2;
+  map<string,string> tokens = 2; // item_0: The
+  string taskInTTLFormat = 3;
 }
 
 message GetTaskSetupRequest {

@@ -1,8 +1,10 @@
-package com.grpc
+package com.grpc.domain
 
 import com.gpch.grpc.protobuf.Language
+import com.grpc.Solver
 import com.grpc.Solver.Companion.DIR_PATH_TO_TASK
 import com.grpc.Solver.Companion.NAMESPACE
+import com.grpc.responses.ValidateTokenPositionResult
 import org.apache.jena.query.*
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
@@ -15,8 +17,8 @@ import java.io.StringWriter
 
 class ValidateTokenPosition(
     language: Language,
-    taskInTTLFormat: String,
-    private val tokens: Map<String, String>, // key - item_0, value - word
+    private val taskInTTLFormat: String,
+    private val tokens: MutableMap<String, String>, // key - item_0, value - word
     private val tokenToCheck: String // word
 ) {
     private var model: Model = ModelFactory.createDefaultModel().read(taskInTTLFormat.byteInputStream(Charsets.UTF_8), null, "TTL")
@@ -60,11 +62,11 @@ class ValidateTokenPosition(
         hypotheses.forEachIndexed { hypothesesIndex, hypothesis ->
             val hypothesisModel: Model = model
             tokens.forEach { entry ->
-                if (entry.value == tokenToCheck) {
+                if (entry.key == tokenToCheck) {
                     currentToken = hypothesis
                     hypothesisModel.add(currentToken, x, "X")
                 } else {
-                    currentToken = hypothesisModel.getResource(NAMESPACE + entry.key)
+                    currentToken = hypothesisModel.getResource(NAMESPACE + entry.value)
                 }
 
                 if (prevToken != null) {
@@ -80,11 +82,25 @@ class ValidateTokenPosition(
 
             File("$DIR_PATH_TO_TASK${Solver.TTL_FILENAME}.ttl").writeText(content)
 
-            val res = Solver(lang).solve(hypothesis.localName)
-            if (res.errors.isEmpty() || hypothesesIndex == hypotheses.size-1) {
-                return res
+            val res = Solver(lang).solve()
+            if (res.isEmpty()) {
+                tokens[tokenToCheck] = hypothesis.localName
+                return ValidateTokenPositionResult(
+                    res,
+                    tokens,
+                    taskInTTLFormat,
+                )
+            }
+            if (hypothesesIndex == hypotheses.size-1) {
+                tokens.remove(tokenToCheck)
+
+                return ValidateTokenPositionResult(
+                    res,
+                    tokens,
+                    taskInTTLFormat,
+                )
             }
         }
-        return ValidateTokenPositionResult(arrayListOf(), "")
+        return ValidateTokenPositionResult(arrayListOf(), tokens, taskInTTLFormat)
     }
 }

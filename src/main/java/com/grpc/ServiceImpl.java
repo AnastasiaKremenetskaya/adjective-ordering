@@ -1,6 +1,10 @@
 package com.grpc;
 
 import com.gpch.grpc.protobuf.*;
+import com.grpc.domain.GetTaskSetup;
+import com.grpc.domain.ValidateTokenPosition;
+import com.grpc.responses.GetTaskSetupResult;
+import com.grpc.responses.ValidateTokenPositionResult;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +53,8 @@ public class ServiceImpl extends SentenceCheckerServiceGrpc.SentenceCheckerServi
         ValidateTokenPositionResponse.Builder builder = ValidateTokenPositionResponse.newBuilder();
 
         builder.addValidationErrors(res.getErrors().toString());
-        builder.setTokenId(res.getTokenId());
+        builder.setTaskInTTLFormat(res.getTaskInTTLFormat());
+        builder.putAllTokens(res.getTokens());
 
         return builder.build();
     }

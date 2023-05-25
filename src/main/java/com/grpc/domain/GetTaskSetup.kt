@@ -1,6 +1,7 @@
-package com.grpc
+package com.grpc.domain
 
 import com.grpc.Solver.Companion.NAMESPACE
+import com.grpc.responses.GetTaskSetupResult
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.vocabulary.RDFS

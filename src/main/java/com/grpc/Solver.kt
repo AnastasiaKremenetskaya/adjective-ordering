@@ -25,14 +25,14 @@ class Solver(
 
     private var model: LearningSituation = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
 
-    fun solve(tokenId: String): ValidateTokenPositionResult {
+    fun solve(): ArrayList<String> {
         //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
         val answer = DomainModel.decisionTree.main.getAnswer(model) //Получить тру/фолс ответ
         val trace =
             DomainModel.decisionTree.main.getTrace(model) //Получить посещенные узлы по всему дереву - в порядке полного вычисления
 
         if (answer) {
-            return ValidateTokenPositionResult(arrayListOf(), tokenId)
+            return arrayListOf()
         }
 
         val errorQuestion = trace[trace.size - 3].additionalInfo["label"].toString()
@@ -42,7 +42,7 @@ class Solver(
         val xVar = model.decisionTreeVariables["X"]
         val yVar = model.decisionTreeVariables["Y"]
         if (xVar == null || yVar == null || errorExplanation == null) {
-            return ValidateTokenPositionResult(arrayListOf(), "")
+            return arrayListOf()
         }
         var res = ""
         if (errorQuestion == isXLeftToY) {
@@ -53,7 +53,7 @@ class Solver(
             res = getHypernymOrderingError(yVar, xVar, errorExplanation)
         }
 
-        return ValidateTokenPositionResult(arrayListOf(res), tokenId)
+        return arrayListOf(res)
     }
 
     private fun getNodeLabel(decisionTreeVar: String): String {

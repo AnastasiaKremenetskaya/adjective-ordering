@@ -1,4 +1,4 @@
-package com.grpc;
+package com.grpc.responses;
 
 import java.util.Map;
 

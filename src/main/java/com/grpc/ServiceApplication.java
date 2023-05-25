@@ -1,6 +1,8 @@
 package com.grpc;
 
 import com.gpch.grpc.protobuf.Language;
+import com.grpc.domain.ValidateTokenPosition;
+import com.grpc.responses.ValidateTokenPositionResult;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -22,10 +24,10 @@ public class ServiceApplication {
 //        String content = new String(Files.readAllBytes(Path.of("/Users/anterekhova/IdeaProjects/adjective-ordering/src/main/resources/input_examples_adj/2.ttl")));
 //
 //        Map<String, String> tokens = new LinkedHashMap<>();
-//        tokens.put("item_0", "The");
-//        tokens.put("", "Japanese");
-//        tokens.put("item_2", "beautiful");
-//        tokens.put("item_3", "books");
+//        tokens.put("The", "item_0");
+//        tokens.put("Japanese", "");
+//        tokens.put("beautiful", "item_2");
+//        tokens.put("books", "item_3");
 //
 //        ValidateTokenPositionResult res = new ValidateTokenPosition(
 //                Language.EN,
