@@ -11,12 +11,11 @@ import com.gpch.grpc.protobuf.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static com.grpc.domain.Solver.*;
 
@@ -35,7 +34,14 @@ public class ValidateTokenPosition {
         this.model = ModelFactory.createDefaultModel().read(IOUtils.toInputStream(taskInTTLFormat, "UTF-8"), null, "TTL");
     }
 
-    public ValidateTokenPositionResult checkTokenPosition() throws FileNotFoundException {
+    public ValidateTokenPositionResult checkTokenPosition() throws IOException {
+        Properties prop = new Properties();
+        String fileName = "app.config";
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            prop.load(fis);
+        }
+        String DIR_PATH_TO_TASK = prop.getProperty("app.path");
+
         ArrayList<Resource> hypotheses = new ArrayList<>();
 
         // Получить узел с токеном, который надо проверить
@@ -90,7 +96,7 @@ public class ValidateTokenPosition {
             OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
             RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
 
-            ArrayList<String> res = new Solver(language.name()).solve();
+            ArrayList<String> res = new Solver(language.name(), DIR_PATH_TO_TASK).solve();
             if (res.isEmpty()) {
                 tokens.put(tokenToCheck, hypotheses.get(i).getLocalName());
 

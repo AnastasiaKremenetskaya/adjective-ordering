@@ -1,13 +1,17 @@
 package com.grpc.domain
 
-import its.model.*
+import its.model.DomainModel
 import its.reasoner.LearningSituation
 import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
 import its.reasoner.nodes.DecisionTreeReasoner._static.getTrace
 import org.apache.jena.vocabulary.RDFS
+import java.io.FileInputStream
+import java.util.*
+
 
 class Solver(
     language: String,
+    DIR_PATH_TO_TASK: String
 ) {
     private val lang = language
     private var model: LearningSituation = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
@@ -82,8 +86,6 @@ class Solver(
     }
 
     companion object {
-        const val DIR_PATH_TO_TASK =
-            "src/main/resources/input_examples_adj/"
         const val TTL_FILENAME =
             "task"
         const val NAMESPACE =

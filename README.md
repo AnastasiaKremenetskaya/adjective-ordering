@@ -17,6 +17,6 @@ The ```./target``` directory will also contain these JARs.
 
 You can then run the application as follows:
 
-    mvn clean install
+    mvn exec:java
 
 ![Java CI with Maven](https://github.com/ShadowGorn/ontology_cpp_parsing/workflows/Java%20CI%20with%20Maven/badge.svg)

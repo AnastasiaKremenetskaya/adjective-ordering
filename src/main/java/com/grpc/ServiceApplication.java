@@ -5,16 +5,26 @@ import its.model.dictionaries.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
 
-import static com.grpc.domain.Solver.DIR_PATH_TO_TASK;
+
 
 @SpringBootApplication
 public class ServiceApplication {
-//    static Path path = Paths.get(".").toAbsolutePath().normalize();
-//    static String rules = path.toFile().getAbsolutePath() +"/src/main/resources/python/model.xml";
 
     public static void main(String[] args) throws IOException {
+        Properties prop = new Properties();
+        String fileName = "app.config";
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            prop.load(fis);
+        }
+        String DIR_PATH_TO_TASK = prop.getProperty("app.path");
+
+        System.out.println(DIR_PATH_TO_TASK);
+        System.out.println(Paths.get(".").toAbsolutePath().normalize().toString());
         new DomainModel(
                 new ClassesDictionary(),
                 new DecisionTreeVarsDictionary(),
