@@ -1,28 +1,15 @@
-package com.grpc
+package com.grpc.domain
 
-import com.gpch.grpc.protobuf.Language
 import its.model.*
-import its.model.dictionaries.*
 import its.reasoner.LearningSituation
 import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
 import its.reasoner.nodes.DecisionTreeReasoner._static.getTrace
 import org.apache.jena.vocabulary.RDFS
 
 class Solver(
-    language: Language,
+    language: String,
 ) {
     private val lang = language
-    init {
-        DomainModel(
-            ClassesDictionary(),
-            DecisionTreeVarsDictionary(),
-            EnumsDictionary(),
-            PropertiesDictionary(),
-            RelationshipsDictionary(),
-            DIR_PATH_TO_TASK,
-        )
-    }
-
     private var model: LearningSituation = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
 
     fun solve(): ArrayList<String> {
@@ -131,8 +118,8 @@ class Solver(
         )
 
         private val ERRORS_EXPLANATION = mapOf(
-            Language.RU to ERRORS_EXPLANATION_RU,
-            Language.EN to ERRORS_EXPLANATION_EN,
+            "RU" to ERRORS_EXPLANATION_RU,
+            "EN" to ERRORS_EXPLANATION_EN,
         )
 
         private val HYPERNYMS_RU = mapOf(
@@ -158,8 +145,8 @@ class Solver(
         )
 
         private val HYPERNYMS = mapOf(
-            Language.RU to HYPERNYMS_RU,
-            Language.EN to HYPERNYMS_EN,
+            "RU" to HYPERNYMS_RU,
+            "EN" to HYPERNYMS_EN,
         )
     }
 }

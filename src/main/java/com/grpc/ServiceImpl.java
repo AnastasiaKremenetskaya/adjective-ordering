@@ -10,16 +10,21 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
 @GRpcService
 @Slf4j
 public class ServiceImpl extends SentenceCheckerServiceGrpc.SentenceCheckerServiceImplBase {
     @Override
     public void validateTokenPosition(ValidateTokenPositionRequest request, StreamObserver<ValidateTokenPositionResponse> responseObserver) {
         try {
+            LinkedHashMap<String, String> map = new LinkedHashMap<String, String>(request.getTokensMap());
             ValidateTokenPositionResult res = new ValidateTokenPosition(
                     request.getLang(),
                     request.getTaskInTTLFormat(),
-                    request.getTokensMap(),
+                    map,
                     request.getTokenToCheck()
             ).checkTokenPosition();
 
@@ -28,7 +33,7 @@ public class ServiceImpl extends SentenceCheckerServiceGrpc.SentenceCheckerServi
             responseObserver.onCompleted();
         } catch (Throwable e) {
             responseObserver.onError(Status.ABORTED
-                    .withDescription("Unable to load file")
+                    .withDescription(e.getMessage())
                     .withCause(e)
                     .asException());
         }

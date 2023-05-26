@@ -1,16 +1,13 @@
 package com.grpc;
 
-import com.gpch.grpc.protobuf.Language;
-import com.grpc.domain.ValidateTokenPosition;
-import com.grpc.responses.ValidateTokenPositionResult;
+import its.model.DomainModel;
+import its.model.dictionaries.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import static com.grpc.domain.Solver.DIR_PATH_TO_TASK;
 
 @SpringBootApplication
 public class ServiceApplication {
@@ -18,6 +15,15 @@ public class ServiceApplication {
 //    static String rules = path.toFile().getAbsolutePath() +"/src/main/resources/python/model.xml";
 
     public static void main(String[] args) throws IOException {
+        new DomainModel(
+                new ClassesDictionary(),
+                new DecisionTreeVarsDictionary(),
+                new EnumsDictionary(),
+                new PropertiesDictionary(),
+                new RelationshipsDictionary(),
+                DIR_PATH_TO_TASK
+        );
+
         SpringApplication.run(ServiceApplication.class, args);
 
 
@@ -29,14 +35,13 @@ public class ServiceApplication {
 //        tokens.put("beautiful", "item_2");
 //        tokens.put("books", "item_3");
 //
-//        ValidateTokenPositionResult res = new ValidateTokenPosition(
+//        com.grpc.responses.ValidateTokenPositionResult res = new ValidateTokenPosition(
 //                Language.EN,
 //                content,
-//                tokens,
+//                (LinkedHashMap<String, String>) tokens,
 //                "Japanese"
 //        ).checkTokenPosition();
 //        System.out.println(res.getErrors());
-//        System.out.println(res.getTokenId());
 
 //        GetTaskSetupResult res = new GetTaskSetup().getTask(content);
 //        System.out.println(res);
