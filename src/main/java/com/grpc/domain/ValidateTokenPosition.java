@@ -27,6 +27,9 @@ public class ValidateTokenPosition {
     private Model model;
 
     public ValidateTokenPosition(Language language, String taskInTTLFormat, LinkedHashMap<String, String> tokens, String tokenToCheck) {
+        System.out.println(language);
+        System.out.println(tokens);
+        System.out.println(tokenToCheck);
         this.language = language;
         this.taskInTTLFormat = taskInTTLFormat;
         this.tokens = tokens;

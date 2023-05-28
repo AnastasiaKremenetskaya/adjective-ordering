@@ -12,6 +12,7 @@ message ValidateTokenPositionRequest {
   string tokenToCheck = 2;
   string taskInTTLFormat = 3;
   Language lang = 4;
+  repeated string orderedTokens = 5;
 }
 
 message ValidateTokenPositionResponse {
