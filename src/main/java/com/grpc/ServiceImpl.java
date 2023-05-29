@@ -10,9 +10,9 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 @GRpcService
 @Slf4j
@@ -20,14 +20,24 @@ public class ServiceImpl extends SentenceCheckerServiceGrpc.SentenceCheckerServi
     @Override
     public void validateTokenPosition(ValidateTokenPositionRequest request, StreamObserver<ValidateTokenPositionResponse> responseObserver) {
         try {
-            LinkedHashMap<String, String> map = new LinkedHashMap<String, String>(request.getTokensMap());
+            AtomicReference<String> tokenToCheck = new AtomicReference<>("");
+            LinkedHashMap<String, String> studentAnswerMap = new LinkedHashMap<>();
+            request.getStudentAnswerList().forEach((token -> {
+                        studentAnswerMap.put(token.getName(), token.getId());
+                        if (token.getId().isEmpty()) {
+                            tokenToCheck.set(token.getName());
+                        }
+                    })
+            );
+            ArrayList<String> wordsToSelectList = new ArrayList<String>(request.getWordsToSelectList());
+
             ValidateTokenPositionResult res = new ValidateTokenPosition(
                     request.getLang(),
                     request.getTaskInTTLFormat(),
-                    map,
-                    request.getTokenToCheck()
+                    studentAnswerMap,
+                    tokenToCheck.get(),
+                    wordsToSelectList
             ).checkTokenPosition();
-
 
             responseObserver.onNext(getValidateTokenPositionResponse(res));
             responseObserver.onCompleted();
@@ -57,9 +67,10 @@ public class ServiceImpl extends SentenceCheckerServiceGrpc.SentenceCheckerServi
     private ValidateTokenPositionResponse getValidateTokenPositionResponse(ValidateTokenPositionResult res) {
         ValidateTokenPositionResponse.Builder builder = ValidateTokenPositionResponse.newBuilder();
 
-        builder.addValidationErrors(res.getErrors().toString());
+        builder.addAllErrors(res.getErrors());
         builder.setTaskInTTLFormat(res.getTaskInTTLFormat());
-        builder.putAllTokens(res.getTokens());
+        builder.addAllStudentAnswer(res.getStudentAnswer());
+        builder.addAllWordsToSelect(res.getWordsToSelect());
 
         return builder.build();
     }

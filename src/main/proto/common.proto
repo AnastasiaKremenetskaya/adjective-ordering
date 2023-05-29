@@ -8,17 +8,17 @@ service SentenceCheckerService {
 }
 
 message ValidateTokenPositionRequest {
-  map<string,string> tokens = 1; // item_0: The
-  string tokenToCheck = 2;
-  string taskInTTLFormat = 3;
-  Language lang = 4;
-  repeated string orderedTokens = 5;
+  Language lang = 1;
+  string taskInTTLFormat = 2;
+  repeated Token studentAnswer = 3; // item_0: The
+  repeated string wordsToSelect = 4;
 }
 
 message ValidateTokenPositionResponse {
-  repeated string validation_errors = 1;
-  map<string,string> tokens = 2; // item_0: The
-  string taskInTTLFormat = 3;
+  repeated string errors = 1;
+  string taskInTTLFormat = 2;
+  repeated Token studentAnswer = 3; // item_0: The
+  repeated string wordsToSelect = 4;
 }
 
 message GetTaskSetupRequest {
@@ -33,4 +33,9 @@ message GetTaskSetupResponse {
 enum Language {
   RU = 0;
   EN = 1;
+}
+
+message Token {
+  string id = 1;
+  string name = 2;
 }

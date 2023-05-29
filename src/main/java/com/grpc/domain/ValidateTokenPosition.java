@@ -12,28 +12,33 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static com.grpc.domain.Solver.*;
 
 public class ValidateTokenPosition {
     Language language;
     private String taskInTTLFormat;
-    private LinkedHashMap<String, String> tokens; // key - item_0, value - word
+    private LinkedHashMap<String, String> studentAnswer; // key - item_0, value - word
     private String tokenToCheck; // word
     private Model model;
+    ArrayList<String> wordsToSelect;
 
-    public ValidateTokenPosition(Language language, String taskInTTLFormat, LinkedHashMap<String, String> tokens, String tokenToCheck) {
+    public ValidateTokenPosition(
+            Language language,
+            String taskInTTLFormat,
+            LinkedHashMap<String, String> studentAnswer,
+            String tokenToCheck,
+            ArrayList<String> wordsToSelect
+    ) {
         System.out.println(language);
-        System.out.println(tokens);
+        System.out.println(studentAnswer);
         System.out.println(tokenToCheck);
         this.language = language;
         this.taskInTTLFormat = taskInTTLFormat;
-        this.tokens = tokens;
+        this.studentAnswer = studentAnswer;
         this.tokenToCheck = tokenToCheck;
+        this.wordsToSelect = wordsToSelect;
         this.model = ModelFactory.createDefaultModel().read(IOUtils.toInputStream(taskInTTLFormat, "UTF-8"), null, "TTL");
     }
 
@@ -79,7 +84,7 @@ public class ValidateTokenPosition {
 
         for (int i = 0; i < hypotheses.size(); i++) {
             Model hypothesisModel = model;
-            for (Map.Entry<String, String> word : tokens.entrySet()) {
+            for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
                 if (word.getKey().equals(tokenToCheck)) {
                     currentToken = hypotheses.get(i);
                     hypothesisModel.add(currentToken, x, "X");
@@ -101,25 +106,28 @@ public class ValidateTokenPosition {
 
             ArrayList<String> res = new Solver(language.name(), DIR_PATH_TO_TASK).solve();
             if (res.isEmpty()) {
-                tokens.put(tokenToCheck, hypotheses.get(i).getLocalName());
+                studentAnswer.put(tokenToCheck, hypotheses.get(i).getLocalName());
+                wordsToSelect.remove(tokenToCheck);
 
                 return new ValidateTokenPositionResult(
                         res,
-                        tokens,
-                        taskInTTLFormat
+                        studentAnswer,
+                        taskInTTLFormat,
+                        wordsToSelect
                 );
             }
             if (i == hypotheses.size() - 1) {
-                tokens.remove(tokenToCheck);
+                studentAnswer.remove(tokenToCheck);
 
                 return new ValidateTokenPositionResult(
                         res,
-                        tokens,
-                        taskInTTLFormat
+                        studentAnswer,
+                        taskInTTLFormat,
+                        wordsToSelect
                 );
             }
         }
 
-        return new ValidateTokenPositionResult(new ArrayList<>(), tokens, taskInTTLFormat);
+        return new ValidateTokenPositionResult(new ArrayList<>(), studentAnswer, taskInTTLFormat, wordsToSelect);
     }
 }
