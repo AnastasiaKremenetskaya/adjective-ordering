@@ -96,11 +96,9 @@ public class ValidateTokenPosition {
                     hypothesisModel.add(prevToken, p, currentToken);
                 }
                 prevToken = currentToken;
-
             };
 
             // Write the model to a string in TTL format
-            System.out.println(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
             OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
             RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
 

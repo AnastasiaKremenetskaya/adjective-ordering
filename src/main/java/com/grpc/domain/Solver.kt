@@ -26,22 +26,29 @@ class Solver(
             return arrayListOf()
         }
 
-        val errorQuestion = trace[trace.size - 3].additionalInfo["label"].toString()
+        var errorQuestion = trace[trace.size - 3].additionalInfo["label"].toString()
+        var traceStep = 3
+        if (errorQuestion == "null") {
+            traceStep = 2
+            errorQuestion = trace[trace.size - traceStep].additionalInfo["label"].toString()
+        }
         val errorExplanation =
-            ERRORS_EXPLANATION[lang]?.get(trace[trace.size - 3].additionalInfo["label"].toString())
+            ERRORS_EXPLANATION[lang]?.get(trace[trace.size - traceStep].additionalInfo["label"].toString())
 
         val xVar = model.decisionTreeVariables["X"]
         val yVar = model.decisionTreeVariables["Y"]
-        if (xVar == null || yVar == null || errorExplanation == null) {
+        if (xVar == null || errorExplanation == null) {
             return arrayListOf()
         }
         var res = ""
-        if (errorQuestion == isXLeftToY) {
+        if (errorQuestion == isXLeftToY && yVar != null) {
             res = getParenthesisOrderingError(xVar, yVar, errorExplanation)
-        } else if (errorQuestion == isYLeftToX) {
+        } else if (errorQuestion == isYLeftToX && yVar != null) {
             res = getParenthesisOrderingError(yVar, xVar, errorExplanation)
-        } else if (errorQuestion == areHypernymsOrdered) {
+        } else if (errorQuestion == areHypernymsOrdered && yVar != null) {
             res = getHypernymOrderingError(yVar, xVar, errorExplanation)
+        } else if (errorQuestion == isHyphenCorrect) {
+            res = errorExplanation
         }
 
         return arrayListOf(res)
@@ -94,6 +101,7 @@ class Solver(
         private var areHypernymsOrdered = "В одинаковом ли порядке расположены токены X и Y -- и гиперонимы X' и Y'?"
         private var isXLeftToY = "Токен X слева от токена Y?"
         private var isYLeftToX = "Токен Y слева от токена X?"
+        private var isHyphenCorrect = "Токен слева от X ребенок токена справа от X? Справа от Х не корень?"
 
         private val ERRORS_EXPLANATION_RU = mapOf(
             areHypernymsOrdered to "%s должно находиться перед %s, \n" +
@@ -107,6 +115,7 @@ class Solver(
             isXLeftToY to "%s должно находиться перед %s, \n" +
                     "так как слово, являющееся дочерним,\n" +
                     "должно находиться левее",
+            isHyphenCorrect to "Дефис не должен стоять между словами %s и %s, т.к. они не являются частями (одного) сложного прилагательного"
         )
 
         private val ERRORS_EXPLANATION_EN = mapOf(
@@ -117,6 +126,7 @@ class Solver(
                     "because child word should be left to parent word",
             isXLeftToY to "%s should precede %s, \n" +
                     "because child word should be left to parent word",
+            isHyphenCorrect to "Дефис не должен стоять между словами, т.к. они не являются частями сложного прилагательного"
         )
 
         private val ERRORS_EXPLANATION = mapOf(

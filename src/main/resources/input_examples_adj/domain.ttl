@@ -7,6 +7,8 @@ ns1:DET rdfs:subClassOf ns1:word .
 
 ns1:NOUN rdfs:subClassOf ns1:word .
 
+ns1:HYPH rdfs:subClassOf ns1:word .
+
 ns1:Opinion a ns1:hypernym ;
     rdfs:label "Opinion" ;
     ns1:hypernymPrecedes ns1:Size .
