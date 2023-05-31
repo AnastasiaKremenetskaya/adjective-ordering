@@ -15,7 +15,7 @@ message ValidateTokenPositionRequest {
 }
 
 message ValidateTokenPositionResponse {
-  repeated string errors = 1;
+  repeated Error errors = 1;
   string taskInTTLFormat = 2;
   repeated Token studentAnswer = 3; // item_0: The
   repeated string wordsToSelect = 4;
@@ -38,4 +38,9 @@ enum Language {
 message Token {
   string id = 1;
   string name = 2;
+}
+
+message Error {
+  string text = 1;
+  string type = 2;
 }

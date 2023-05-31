@@ -2,6 +2,7 @@ package com.grpc.responses;
 
 import com.gpch.grpc.protobuf.Token;
 import com.gpch.grpc.protobuf.ValidateTokenPositionResponse;
+import responses.Error;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -11,19 +12,18 @@ import java.util.Map;
 import static com.grpc.domain.Solver.NAMESPACE;
 
 public class ValidateTokenPositionResult {
-    private List<String> errors;
+    private List<com.gpch.grpc.protobuf.Error> errors;
     private ArrayList<String> wordsToSelect;
     private List<Token> studentAnswer;
     private String taskInTTLFormat;
 
     public ValidateTokenPositionResult(
-            List<String> errors,
+            List<Error> errors,
             LinkedHashMap<String,
                     String> studentAnswer,
             String taskInTTLFormat,
             ArrayList<String> wordsToSelect
     ) {
-        this.errors = errors;
         this.taskInTTLFormat = taskInTTLFormat;
         this.wordsToSelect = wordsToSelect;
 
@@ -34,9 +34,16 @@ public class ValidateTokenPositionResult {
             builder.setId(word.getValue());
             convertedStudentAnswer.add(builder.build());
         };
-
         this.studentAnswer = convertedStudentAnswer;
 
+        List<com.gpch.grpc.protobuf.Error> convertedErrors = new ArrayList<>();
+        com.gpch.grpc.protobuf.Error.Builder errBuilder = com.gpch.grpc.protobuf.Error.newBuilder();
+        for (Error err : errors) {
+            errBuilder.setText(err.getText());
+            errBuilder.setType(err.getType());
+            convertedErrors.add(errBuilder.build());
+        }
+        this.errors = convertedErrors;
     }
 
     public List<Token> getStudentAnswer() {
@@ -47,7 +54,7 @@ public class ValidateTokenPositionResult {
         return taskInTTLFormat;
     }
 
-    public List<String> getErrors() {
+    public List<com.gpch.grpc.protobuf.Error> getErrors() {
         return errors;
     }
 

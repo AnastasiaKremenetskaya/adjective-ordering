@@ -5,8 +5,10 @@ import its.reasoner.LearningSituation
 import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
 import its.reasoner.nodes.DecisionTreeReasoner._static.getTrace
 import org.apache.jena.vocabulary.RDFS
+import responses.Error
 import java.io.FileInputStream
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class Solver(
@@ -16,7 +18,7 @@ class Solver(
     private val lang = language
     private var model: LearningSituation = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
 
-    fun solve(): ArrayList<String> {
+    fun solve(): ArrayList<Error> {
         //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
         val answer = DomainModel.decisionTree.main.getAnswer(model) //Получить тру/фолс ответ
         val trace =
@@ -40,7 +42,7 @@ class Solver(
         if (xVar == null || errorExplanation == null) {
             return arrayListOf()
         }
-        var res = ""
+        var res = ArrayList<Error>()
         if (errorQuestion == isXLeftToY && yVar != null) {
             res = getParenthesisOrderingError(xVar, yVar, errorExplanation)
         } else if (errorQuestion == isYLeftToX && yVar != null) {
@@ -48,10 +50,10 @@ class Solver(
         } else if (errorQuestion == areHypernymsOrdered && yVar != null) {
             res = getHypernymOrderingError(yVar, xVar, errorExplanation)
         } else if (errorQuestion == isHyphenCorrect) {
-            res = errorExplanation
+            res.add(Error(errorQuestion, "text"))
         }
 
-        return arrayListOf(res)
+        return res
     }
 
     private fun getNodeLabel(decisionTreeVar: String): String {
@@ -71,25 +73,40 @@ class Solver(
     private fun getHypernymOrderingError(
         decisionTreeVarX: String,
         decisionTreeVarY: String,
-        errorQuestion: String
-    ): String {
+        errorQuestion: ArrayList<String>
+    ): ArrayList<Error> {
         val xNodeLabel = getNodeLabel(decisionTreeVarX)
         val yNodeLabel = getNodeLabel(decisionTreeVarY)
         val xNodeHypernym = getNodeHypernym(decisionTreeVarX)
         val yNodeHypernym = getNodeHypernym(decisionTreeVarY)
 
-        return String.format(errorQuestion, xNodeLabel, yNodeLabel, xNodeHypernym, yNodeHypernym)
+        var errors = ArrayList<Error>()
+        errors.add(Error(xNodeLabel, "lexem"))
+        errors.add(Error(errorQuestion[0], "text"))
+        errors.add(Error(yNodeLabel, "lexem"))
+        errors.add(Error(errorQuestion[1], "text"))
+        errors.add(Error(xNodeHypernym, "text"))
+        errors.add(Error(errorQuestion[2], "text"))
+        errors.add(Error(yNodeHypernym, "text"))
+
+        return errors
     }
 
     private fun getParenthesisOrderingError(
         decisionTreeVarX: String,
         decisionTreeVarY: String,
-        errorQuestion: String
-    ): String {
+        errorQuestion: ArrayList<String>
+    ): ArrayList<Error> {
         val xNodeLabel = getNodeLabel(decisionTreeVarX)
         val yNodeLabel = getNodeLabel(decisionTreeVarY)
 
-        return String.format(errorQuestion, xNodeLabel, yNodeLabel)
+        var errors = ArrayList<Error>()
+        errors.add(Error(xNodeLabel, "lexem"))
+        errors.add(Error(errorQuestion[0], "text"))
+        errors.add(Error(yNodeLabel, "lexem"))
+        errors.add(Error(errorQuestion[1], "text"))
+
+        return errors
     }
 
     companion object {
@@ -104,29 +121,38 @@ class Solver(
         private var isHyphenCorrect = "Токен слева от X ребенок токена справа от X? Справа от Х не корень?"
 
         private val ERRORS_EXPLANATION_RU = mapOf(
-            areHypernymsOrdered to "%s должно находиться перед %s, \n" +
-                    "так как прилагательное, \n" +
-                    "описывающее %s,\n" +
-                    "должно находиться перед прилагательным, \n" +
-                    "описывающим %s",
-            isYLeftToX to "%s должно находиться перед %s, \n" +
-                    "так как слово, являющееся дочерним,\n" +
-                    "должно находиться левее",
-            isXLeftToY to "%s должно находиться перед %s, \n" +
-                    "так как слово, являющееся дочерним,\n" +
-                    "должно находиться левее",
-            isHyphenCorrect to "Дефис не должен стоять между словами %s и %s, т.к. они не являются частями (одного) сложного прилагательного"
+            areHypernymsOrdered to arrayListOf(
+                "должно находиться перед",
+                "так как прилагательное,описывающее",
+                "должно находиться перед прилагательным",
+                "описывающим"
+            ),
+            isYLeftToX to arrayListOf(
+                "должно находиться перед",
+                "так как слово, являющееся дочерним, должно находиться левее"
+            ),
+            isXLeftToY to arrayListOf(
+                "должно находиться перед",
+                "так как слово, являющееся дочерним, должно находиться левее"
+            ),
+            isHyphenCorrect to arrayListOf("Дефис не должен стоять между выбранными словами, т.к. они не являются частями сложного прилагательного")
         )
 
         private val ERRORS_EXPLANATION_EN = mapOf(
-            areHypernymsOrdered to "%s should precede %s, \n" +
-                    "because adjective that describes %s,\n" +
-                    "should precede adjective that describes %s",
-            isYLeftToX to "%s should precede %s, \n" +
-                    "because child word should be left to parent word",
-            isXLeftToY to "%s should precede %s, \n" +
-                    "because child word should be left to parent word",
-            isHyphenCorrect to "Дефис не должен стоять между словами, т.к. они не являются частями сложного прилагательного"
+            areHypernymsOrdered to arrayListOf(
+                "should precede",
+                "because adjective that describes",
+                "should precede adjective that describes"
+            ),
+            isYLeftToX to arrayListOf(
+                "should precede",
+                "because child word should be left to parent word"
+            ),
+            isXLeftToY to arrayListOf(
+                "should precede",
+                "because child word should be left to parent word"
+            ),
+            isHyphenCorrect to arrayListOf("Дефис не должен стоять между выбранными словами, т.к. они не являются частями сложного прилагательного")
         )
 
         private val ERRORS_EXPLANATION = mapOf(

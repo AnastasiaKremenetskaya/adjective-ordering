@@ -16,8 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
-
-
 @SpringBootApplication
 public class ServiceApplication {
 
@@ -40,16 +38,16 @@ public class ServiceApplication {
                 DIR_PATH_TO_TASK
         );
 
-//        SpringApplication.run(ServiceApplication.class, args);
+        SpringApplication.run(ServiceApplication.class, args);
 
 
-        String content = new String(Files.readAllBytes(Path.of("/Users/anterekhova/IdeaProjects/adjective-ordering/src/main/resources/input_examples_adj/7.ttl")));
-
-        ArrayList<String> wordsToSelect = new ArrayList<>();
-        wordsToSelect.add("Japanese");
+//        String content = new String(Files.readAllBytes(Path.of("/Users/anterekhova/IdeaProjects/adjective-ordering/src/main/resources/input_examples_adj/7.ttl")));
+//
+//        ArrayList<String> wordsToSelect = new ArrayList<>();
+//        wordsToSelect.add("Japanese");
 //        wordsToSelect.add("amazing");
 
-        Map<String, String> tokens = new LinkedHashMap<>();
+//        Map<String, String> tokens = new LinkedHashMap<>();
 ////        tokens.put("amazing", "item_0");
 //        tokens.put("young", "item_1");
 //        tokens.put("amazing", "");
@@ -57,11 +55,11 @@ public class ServiceApplication {
 //        tokens.put("cod", "item_4");
 //        tokens.put("sellers", "item_5");
 
-        tokens.put("salt", "item_1");
-        tokens.put("-", "item_2");
-        tokens.put("cod", "item_3");
-        tokens.put("Japanese", "");
-        tokens.put("sellers", "item_4");
+//        tokens.put("salt", "item_1");
+//        tokens.put("-", "item_2");
+//        tokens.put("cod", "item_3");
+//        tokens.put("Japanese", "");
+//        tokens.put("sellers", "item_4");
 
 // ttl2
 //        tokens.put("The", "item_0");
@@ -81,17 +79,17 @@ public class ServiceApplication {
 //        tokens.put("cod", "item_8");
 //        tokens.put("sellers", "item_9");
 
-        com.grpc.responses.ValidateTokenPositionResult res = new ValidateTokenPosition(
-                Language.EN,
-                content,
-                (LinkedHashMap<String, String>) tokens,
-                "Japanese",
-                wordsToSelect
-
-        ).checkTokenPosition();
-        System.out.println(res.getErrors());
-        System.out.println(wordsToSelect);
-        System.out.println(tokens);
+//        com.grpc.responses.ValidateTokenPositionResult res = new ValidateTokenPosition(
+//                Language.EN,
+//                content,
+//                (LinkedHashMap<String, String>) tokens,
+//                "Japanese",
+//                wordsToSelect
+//
+//        ).checkTokenPosition();
+//        System.out.println(res.getErrors());
+//        System.out.println(wordsToSelect);
+//        System.out.println(tokens);
 
 //        GetTaskSetupResult res = new GetTaskSetup().getTask(content);
 //        System.out.println(res);
