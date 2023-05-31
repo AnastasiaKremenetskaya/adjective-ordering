@@ -81,9 +81,9 @@ class Solver(
         val yNodeHypernym = getNodeHypernym(decisionTreeVarY)
 
         var errors = ArrayList<Error>()
-        errors.add(Error(xNodeLabel, "lexem"))
+        errors.add(Error(xNodeLabel, "lexeme"))
         errors.add(Error(errorQuestion[0], "text"))
-        errors.add(Error(yNodeLabel, "lexem"))
+        errors.add(Error(yNodeLabel, "lexeme"))
         errors.add(Error(errorQuestion[1], "text"))
         errors.add(Error(xNodeHypernym, "text"))
         errors.add(Error(errorQuestion[2], "text"))
@@ -101,9 +101,9 @@ class Solver(
         val yNodeLabel = getNodeLabel(decisionTreeVarY)
 
         var errors = ArrayList<Error>()
-        errors.add(Error(xNodeLabel, "lexem"))
+        errors.add(Error(xNodeLabel, "lexeme"))
         errors.add(Error(errorQuestion[0], "text"))
-        errors.add(Error(yNodeLabel, "lexem"))
+        errors.add(Error(yNodeLabel, "lexeme"))
         errors.add(Error(errorQuestion[1], "text"))
 
         return errors
