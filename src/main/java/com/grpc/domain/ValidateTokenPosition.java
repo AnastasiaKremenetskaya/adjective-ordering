@@ -111,6 +111,7 @@ public class ValidateTokenPosition {
 
             if (res.isEmpty()) {
                 studentAnswer.put(tokenToCheck, hypotheses.get(i).getLocalName());
+                wordsToSelect.remove(tokenToCheck);
 
                 return new ValidateTokenPositionResult(
                         errors,

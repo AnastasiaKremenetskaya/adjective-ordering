@@ -6,7 +6,6 @@ import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
 import its.reasoner.nodes.DecisionTreeReasoner._static.getTrace
 import org.apache.jena.vocabulary.RDFS
 import responses.ErrorPart
-import kotlin.collections.ArrayList
 
 
 class Solver(
@@ -26,14 +25,17 @@ class Solver(
             return arrayListOf()
         }
 
-        var errorQuestion = trace[trace.size - 3].additionalInfo["label"].toString()
-        var traceStep = 3
-        if (errorQuestion == "null") {
-            traceStep = 2
-            errorQuestion = trace[trace.size - traceStep].additionalInfo["label"].toString()
+        var errorQuestion = ""
+        var errorExplanation:ArrayList<String>? = null
+
+        var i: Int = trace.size
+        while (i-- > 0) {
+            errorQuestion = trace.get(i).additionalInfo["label"].toString()
+            errorExplanation = ERRORS_EXPLANATION[lang]?.get(errorQuestion)
+            if (!errorExplanation.isNullOrEmpty()) {
+                break
+            }
         }
-        val errorExplanation =
-            ERRORS_EXPLANATION[lang]?.get(trace[trace.size - traceStep].additionalInfo["label"].toString())
 
         val xVar = model.decisionTreeVariables["X"]
         val yVar = model.decisionTreeVariables["Y"]
@@ -48,7 +50,7 @@ class Solver(
         } else if (errorQuestion == areHypernymsOrdered && yVar != null) {
             res = getHypernymOrderingError(yVar, xVar, errorExplanation)
         } else if (errorQuestion == isHyphenCorrect) {
-            res.add(ErrorPart(errorQuestion, "text"))
+            res.add(ErrorPart(errorExplanation[0], "text"))
         }
 
         return res
