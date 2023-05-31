@@ -122,7 +122,6 @@ public class ValidateTokenPosition {
             }
             if (i == hypotheses.size() - 1) {
                 studentAnswer.remove(tokenToCheck);
-                wordsToSelect.add(tokenToCheck);
 
                 return new ValidateTokenPositionResult(
                         errors,
