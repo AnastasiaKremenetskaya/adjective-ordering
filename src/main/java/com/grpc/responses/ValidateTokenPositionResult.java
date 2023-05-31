@@ -1,15 +1,13 @@
 package com.grpc.responses;
 
+import com.gpch.grpc.protobuf.ErrorPart;
 import com.gpch.grpc.protobuf.Token;
-import com.gpch.grpc.protobuf.ValidateTokenPositionResponse;
 import responses.Error;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.grpc.domain.Solver.NAMESPACE;
 
 public class ValidateTokenPositionResult {
     private List<com.gpch.grpc.protobuf.Error> errors;
@@ -37,12 +35,19 @@ public class ValidateTokenPositionResult {
         this.studentAnswer = convertedStudentAnswer;
 
         List<com.gpch.grpc.protobuf.Error> convertedErrors = new ArrayList<>();
+        List<com.gpch.grpc.protobuf.ErrorPart> convertedErrorParts = new ArrayList<>();
         com.gpch.grpc.protobuf.Error.Builder errBuilder = com.gpch.grpc.protobuf.Error.newBuilder();
+        com.gpch.grpc.protobuf.ErrorPart.Builder errPartBuilder = com.gpch.grpc.protobuf.ErrorPart.newBuilder();
         for (Error err : errors) {
-            errBuilder.setText(err.getText());
-            errBuilder.setType(err.getType());
+            for (responses.ErrorPart errorPart : err.getError()) {
+                errPartBuilder.setText(errorPart.getText());
+                errPartBuilder.setType(errorPart.getType());
+                convertedErrorParts.add(errPartBuilder.build());
+            }
+            errBuilder.addAllError(convertedErrorParts);
             convertedErrors.add(errBuilder.build());
         }
+
         this.errors = convertedErrors;
     }
 

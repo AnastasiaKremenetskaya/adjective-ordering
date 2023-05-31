@@ -41,6 +41,10 @@ message Token {
 }
 
 message Error {
+  repeated ErrorPart error = 1;
+}
+
+message ErrorPart {
   string text = 1;
   string type = 2;
 }

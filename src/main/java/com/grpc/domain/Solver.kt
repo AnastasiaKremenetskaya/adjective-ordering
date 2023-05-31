@@ -5,9 +5,7 @@ import its.reasoner.LearningSituation
 import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
 import its.reasoner.nodes.DecisionTreeReasoner._static.getTrace
 import org.apache.jena.vocabulary.RDFS
-import responses.Error
-import java.io.FileInputStream
-import java.util.*
+import responses.ErrorPart
 import kotlin.collections.ArrayList
 
 
@@ -18,7 +16,7 @@ class Solver(
     private val lang = language
     private var model: LearningSituation = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
 
-    fun solve(): ArrayList<Error> {
+    fun solve(): ArrayList<ErrorPart> {
         //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
         val answer = DomainModel.decisionTree.main.getAnswer(model) //Получить тру/фолс ответ
         val trace =
@@ -42,7 +40,7 @@ class Solver(
         if (xVar == null || errorExplanation == null) {
             return arrayListOf()
         }
-        var res = ArrayList<Error>()
+        var res = ArrayList<ErrorPart>()
         if (errorQuestion == isXLeftToY && yVar != null) {
             res = getParenthesisOrderingError(xVar, yVar, errorExplanation)
         } else if (errorQuestion == isYLeftToX && yVar != null) {
@@ -50,7 +48,7 @@ class Solver(
         } else if (errorQuestion == areHypernymsOrdered && yVar != null) {
             res = getHypernymOrderingError(yVar, xVar, errorExplanation)
         } else if (errorQuestion == isHyphenCorrect) {
-            res.add(Error(errorQuestion, "text"))
+            res.add(ErrorPart(errorQuestion, "text"))
         }
 
         return res
@@ -74,39 +72,39 @@ class Solver(
         decisionTreeVarX: String,
         decisionTreeVarY: String,
         errorQuestion: ArrayList<String>
-    ): ArrayList<Error> {
+    ): ArrayList<ErrorPart> {
         val xNodeLabel = getNodeLabel(decisionTreeVarX)
         val yNodeLabel = getNodeLabel(decisionTreeVarY)
         val xNodeHypernym = getNodeHypernym(decisionTreeVarX)
         val yNodeHypernym = getNodeHypernym(decisionTreeVarY)
 
-        var errors = ArrayList<Error>()
-        errors.add(Error(xNodeLabel, "lexeme"))
-        errors.add(Error(errorQuestion[0], "text"))
-        errors.add(Error(yNodeLabel, "lexeme"))
-        errors.add(Error(errorQuestion[1], "text"))
-        errors.add(Error(xNodeHypernym, "text"))
-        errors.add(Error(errorQuestion[2], "text"))
-        errors.add(Error(yNodeHypernym, "text"))
+        var errorParts = ArrayList<ErrorPart>()
+        errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[0], "text"))
+        errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[1], "text"))
+        errorParts.add(ErrorPart(xNodeHypernym, "text"))
+        errorParts.add(ErrorPart(errorQuestion[2], "text"))
+        errorParts.add(ErrorPart(yNodeHypernym, "text"))
 
-        return errors
+        return errorParts
     }
 
     private fun getParenthesisOrderingError(
         decisionTreeVarX: String,
         decisionTreeVarY: String,
         errorQuestion: ArrayList<String>
-    ): ArrayList<Error> {
+    ): ArrayList<ErrorPart> {
         val xNodeLabel = getNodeLabel(decisionTreeVarX)
         val yNodeLabel = getNodeLabel(decisionTreeVarY)
 
-        var errors = ArrayList<Error>()
-        errors.add(Error(xNodeLabel, "lexeme"))
-        errors.add(Error(errorQuestion[0], "text"))
-        errors.add(Error(yNodeLabel, "lexeme"))
-        errors.add(Error(errorQuestion[1], "text"))
+        var errorParts = ArrayList<ErrorPart>()
+        errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[0], "text"))
+        errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[1], "text"))
 
-        return errors
+        return errorParts
     }
 
     companion object {

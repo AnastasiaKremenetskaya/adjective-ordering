@@ -11,6 +11,7 @@ import com.gpch.grpc.protobuf.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import responses.Error;
+import responses.ErrorPart;
 
 import java.io.*;
 import java.util.*;
@@ -103,13 +104,17 @@ public class ValidateTokenPosition {
             OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
             RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
 
-            ArrayList<Error> res = new Solver(language.name(), DIR_PATH_TO_TASK).solve();
+            ArrayList<ErrorPart> res = new Solver(language.name(), DIR_PATH_TO_TASK).solve();
+
+            ArrayList<Error> errors = new ArrayList<>();
+            errors.add(new Error(res));
+
             if (res.isEmpty()) {
                 studentAnswer.put(tokenToCheck, hypotheses.get(i).getLocalName());
                 wordsToSelect.remove(tokenToCheck);
 
                 return new ValidateTokenPositionResult(
-                        res,
+                        errors,
                         studentAnswer,
                         taskInTTLFormat,
                         wordsToSelect
@@ -120,7 +125,7 @@ public class ValidateTokenPosition {
                 wordsToSelect.add(tokenToCheck);
 
                 return new ValidateTokenPositionResult(
-                        res,
+                        errors,
                         studentAnswer,
                         taskInTTLFormat,
                         wordsToSelect
