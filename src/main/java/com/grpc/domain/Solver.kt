@@ -9,13 +9,17 @@ import responses.ErrorPart
 
 
 class Solver(
-    language: String,
-    DIR_PATH_TO_TASK: String
 ) {
-    private val lang = language
-    private var model: LearningSituation = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
+    private var lang = "RU"
+    private lateinit var model: LearningSituation
 
-    fun solve(): ArrayList<ErrorPart> {
+    fun solve(
+        language: String,
+        DIR_PATH_TO_TASK: String
+    ): ArrayList<ErrorPart> {
+        this.lang = language
+        this.model = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
+
         //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
         val answer = DomainModel.decisionTree.main.getAnswer(model) //Получить тру/фолс ответ
         val trace =
@@ -110,6 +114,14 @@ class Solver(
     }
 
     companion object {
+        @Volatile
+        private var instance: Solver? = null
+
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: Solver().also { instance = it }
+            }
+
         const val TTL_FILENAME =
             "task"
         const val NAMESPACE =

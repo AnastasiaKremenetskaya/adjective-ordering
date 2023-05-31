@@ -31,13 +31,14 @@ public class ServiceImpl extends SentenceCheckerServiceGrpc.SentenceCheckerServi
             );
             ArrayList<String> wordsToSelectList = new ArrayList<String>(request.getWordsToSelectList());
 
-            ValidateTokenPositionResult res = new ValidateTokenPosition(
-                    request.getLang(),
-                    request.getTaskInTTLFormat(),
-                    studentAnswerMap,
-                    tokenToCheck.get(),
-                    wordsToSelectList
-            ).checkTokenPosition();
+            ValidateTokenPositionResult res = ValidateTokenPosition.getInstance().
+                    checkTokenPosition(
+                            request.getLang(),
+                            request.getTaskInTTLFormat(),
+                            studentAnswerMap,
+                            tokenToCheck.get(),
+                            wordsToSelectList
+                    );
 
             responseObserver.onNext(getValidateTokenPositionResponse(res));
             responseObserver.onCompleted();

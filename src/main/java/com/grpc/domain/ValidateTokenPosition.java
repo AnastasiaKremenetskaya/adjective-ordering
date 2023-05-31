@@ -18,7 +18,21 @@ import java.util.*;
 
 import static com.grpc.domain.Solver.*;
 
-public class ValidateTokenPosition {
+public final class ValidateTokenPosition {
+    private static ValidateTokenPosition INSTANCE;
+    private String info = "Initial info class";
+
+    private ValidateTokenPosition() {
+    }
+
+    public static ValidateTokenPosition getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new ValidateTokenPosition();
+        }
+
+        return INSTANCE;
+    }
+
     Language language;
     private String taskInTTLFormat;
     private LinkedHashMap<String, String> studentAnswer; // key - item_0, value - word
@@ -26,25 +40,20 @@ public class ValidateTokenPosition {
     private Model model;
     ArrayList<String> wordsToSelect;
 
-    public ValidateTokenPosition(
+    public ValidateTokenPositionResult checkTokenPosition(
             Language language,
             String taskInTTLFormat,
             LinkedHashMap<String, String> studentAnswer,
             String tokenToCheck,
             ArrayList<String> wordsToSelect
-    ) {
-        System.out.println(language);
-        System.out.println(studentAnswer);
-        System.out.println(tokenToCheck);
+    ) throws IOException {
         this.language = language;
         this.taskInTTLFormat = taskInTTLFormat;
         this.studentAnswer = studentAnswer;
         this.tokenToCheck = tokenToCheck;
         this.wordsToSelect = wordsToSelect;
         this.model = ModelFactory.createDefaultModel().read(IOUtils.toInputStream(taskInTTLFormat, "UTF-8"), null, "TTL");
-    }
 
-    public ValidateTokenPositionResult checkTokenPosition() throws IOException {
         Properties prop = new Properties();
         String fileName = "app.config";
         try (FileInputStream fis = new FileInputStream(fileName)) {
@@ -104,7 +113,7 @@ public class ValidateTokenPosition {
             OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
             RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
 
-            ArrayList<ErrorPart> res = new Solver(language.name(), DIR_PATH_TO_TASK).solve();
+            ArrayList<ErrorPart> res = Companion.getInstance().solve(language.name(), DIR_PATH_TO_TASK);
 
             ArrayList<Error> errors = new ArrayList<>();
             errors.add(new Error(res));
