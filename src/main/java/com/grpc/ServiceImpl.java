@@ -23,7 +23,7 @@ public class ServiceImpl extends SentenceCheckerServiceGrpc.SentenceCheckerServi
             AtomicReference<String> tokenToCheck = new AtomicReference<>("");
             LinkedHashMap<String, String> studentAnswerMap = new LinkedHashMap<>();
             request.getStudentAnswerList().forEach((token -> {
-                        studentAnswerMap.put(token.getName(), token.getId());
+                        studentAnswerMap.put(token.getId(), token.getName());
                         if (token.getId().isEmpty()) {
                             tokenToCheck.set(token.getName());
                         }

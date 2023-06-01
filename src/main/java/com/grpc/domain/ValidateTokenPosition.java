@@ -26,7 +26,7 @@ public final class ValidateTokenPosition {
     }
 
     public static ValidateTokenPosition getInstance() {
-        if(INSTANCE == null) {
+        if (INSTANCE == null) {
             INSTANCE = new ValidateTokenPosition();
         }
 
@@ -69,7 +69,7 @@ public final class ValidateTokenPosition {
                 "SELECT ?resource " +
                 "WHERE { " +
                 "   ?resource rdfs:label \"%s\" . " +
-                "}", NAMESPACE, tokenToCheck);
+                "} order by asc(?resource)", NAMESPACE, tokenToCheck);
 
         // Execute the SPARQL query
         Query query = QueryFactory.create(queryString);
@@ -81,11 +81,62 @@ public final class ValidateTokenPosition {
             QuerySolution solution = resultSet.nextSolution();
             Resource resource = solution.getResource("resource");
             hypotheses.add(resource);
-//            println("Resource with label $tokenToCheck: ${resource.uri}");
+        }
+        queryExecution.close();
+
+        Resource newWordResource = null;
+        LinkedHashMap<String, String> newStudentAnswer = new LinkedHashMap<>();
+        if (hypotheses.size() > 1) {
+            int i = 0;
+            for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
+                if (entry.getValue().equals(tokenToCheck)) {
+                    if (entry.getKey().isEmpty()) {
+                        newWordResource = hypotheses.get(i);
+                    }
+                    String id = hypotheses.get(i).getLocalName().toString();
+                    newStudentAnswer.put(id, tokenToCheck);
+                    i++;
+                } else {
+                    newStudentAnswer.put(entry.getKey(), entry.getValue());
+                }
+            }
         }
 
-        // Close the query execution
-        queryExecution.close();
+        Model hypothesisModel = buildModelFromStudentAnswer(newStudentAnswer, newWordResource);
+
+        // Write the model to a string in TTL format
+        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
+        RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
+
+        ArrayList<ErrorPart> res = Companion.getInstance().solve(language.name(), DIR_PATH_TO_TASK);
+
+        ArrayList<Error> errors = new ArrayList<>();
+        errors.add(new Error(res));
+
+        if (res.isEmpty()) {
+            wordsToSelect.remove(tokenToCheck);
+
+            return new ValidateTokenPositionResult(
+                    errors,
+                    newStudentAnswer,
+                    taskInTTLFormat,
+                    wordsToSelect
+            );
+        }
+
+        // Если проверили все гипотезы, но каждая ошибочна - возвращаем ошибку
+        studentAnswer.remove(""); // удалить предположительный ответ
+
+        return new ValidateTokenPositionResult(
+                errors,
+                studentAnswer,
+                taskInTTLFormat,
+                wordsToSelect
+        );
+    }
+
+    private Model buildModelFromStudentAnswer(LinkedHashMap<String, String> studentAnswer, Resource hypothesis) {
+        Model hypothesisModel = model;
 
         // для всех гипотез проверить на ошибки
         Property p = model.createProperty(NAMESPACE + "tokenPrecedes");
@@ -93,54 +144,21 @@ public final class ValidateTokenPosition {
         Resource prevToken = null;
         Resource currentToken = null;
 
-        for (int i = 0; i < hypotheses.size(); i++) {
-            Model hypothesisModel = model;
-            for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
-                if (word.getKey().equals(tokenToCheck)) {
-                    currentToken = hypotheses.get(i);
-                    hypothesisModel.add(currentToken, x, "X");
-                } else {
-                    currentToken = hypothesisModel.getResource(NAMESPACE + word.getValue());
-                }
-
-                if (prevToken != null) {
-                    hypothesisModel.add(prevToken, p, currentToken);
-                }
-                prevToken = currentToken;
-            };
-
-            // Write the model to a string in TTL format
-            OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
-            RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
-
-            ArrayList<ErrorPart> res = Companion.getInstance().solve(language.name(), DIR_PATH_TO_TASK);
-
-            ArrayList<Error> errors = new ArrayList<>();
-            errors.add(new Error(res));
-
-            if (res.isEmpty()) {
-                studentAnswer.put(tokenToCheck, hypotheses.get(i).getLocalName());
-                wordsToSelect.remove(tokenToCheck);
-
-                return new ValidateTokenPositionResult(
-                        errors,
-                        studentAnswer,
-                        taskInTTLFormat,
-                        wordsToSelect
-                );
+        for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
+            if (word.getKey().equals(hypothesis.getLocalName().toString())) {
+                currentToken = hypothesis;
+                hypothesisModel.add(currentToken, x, "X");
+            } else {
+                currentToken = hypothesisModel.getResource(NAMESPACE + word.getKey());
             }
-            if (i == hypotheses.size() - 1) {
-                studentAnswer.remove(tokenToCheck);
 
-                return new ValidateTokenPositionResult(
-                        errors,
-                        studentAnswer,
-                        taskInTTLFormat,
-                        wordsToSelect
-                );
+            if (prevToken != null) {
+                hypothesisModel.add(prevToken, p, currentToken);
             }
+            prevToken = currentToken;
         }
+        ;
 
-        return new ValidateTokenPositionResult(new ArrayList<>(), studentAnswer, taskInTTLFormat, wordsToSelect);
+        return hypothesisModel;
     }
 }

@@ -28,8 +28,8 @@ public class ValidateTokenPositionResult {
         List<Token> convertedStudentAnswer = new ArrayList<>();
         Token.Builder builder = Token.newBuilder();
         for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
-            builder.setName(word.getKey());
-            builder.setId(word.getValue());
+            builder.setName(word.getValue());
+            builder.setId(word.getKey());
             convertedStudentAnswer.add(builder.build());
         };
         this.studentAnswer = convertedStudentAnswer;
