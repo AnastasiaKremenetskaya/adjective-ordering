@@ -20,7 +20,6 @@ import static com.grpc.domain.Solver.*;
 
 public final class ValidateTokenPosition {
     private static ValidateTokenPosition INSTANCE;
-    private String info = "Initial info class";
 
     private ValidateTokenPosition() {
     }
@@ -39,6 +38,7 @@ public final class ValidateTokenPosition {
     private String tokenToCheck; // word
     private Model model;
     ArrayList<String> wordsToSelect;
+    String DIR_PATH_TO_TASK;
 
     public ValidateTokenPositionResult checkTokenPosition(
             Language language,
@@ -59,8 +59,66 @@ public final class ValidateTokenPosition {
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
         }
-        String DIR_PATH_TO_TASK = prop.getProperty("app.path");
+        this.DIR_PATH_TO_TASK = prop.getProperty("app.path");
 
+        if (tokenToCheck.equals("-")) {
+            return validateHyphen();
+        }
+        return validateWord();
+    }
+
+    private ValidateTokenPositionResult validateHyphen() throws FileNotFoundException {
+        Model hypothesisModel = model;
+
+        // для всех гипотез проверить на ошибки
+        Property var = model.createProperty(NAMESPACE + "var...");
+
+        Resource currentToken = null;
+
+        boolean xAdded = false;
+        for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
+            if (!word.getValue().equals("-")) {
+                currentToken = hypothesisModel.getResource(NAMESPACE + word.getKey());
+
+            }
+            if (xAdded) {
+                hypothesisModel.add(currentToken, var, "X");
+            }
+            if (word.getValue().equals("-")) {
+                if (currentToken == null) {
+                    return new ValidateTokenPositionResult(
+                            new ArrayList<Error>(),
+                            studentAnswer,
+                            taskInTTLFormat,
+                            wordsToSelect
+                    );
+                }
+
+                hypothesisModel.add(currentToken, var, "Y");
+                xAdded = true;
+            }
+        }
+        ;
+
+        // Write the model to a string in TTL format
+        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
+        RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
+
+        ArrayList<ErrorPart> res = Companion.getInstance().solveHyphen(language.name(), DIR_PATH_TO_TASK);
+
+        ArrayList<Error> errors = new ArrayList<>();
+        errors.add(new Error(res));
+
+        studentAnswer.remove(""); // удалить предположительный ответ
+        return new ValidateTokenPositionResult(
+                errors,
+                studentAnswer,
+                taskInTTLFormat,
+                wordsToSelect
+        );
+    }
+
+    private ValidateTokenPositionResult validateWord() throws FileNotFoundException {
         ArrayList<Resource> hypotheses = new ArrayList<>();
 
         // Получить узел с токеном, который надо проверить
@@ -84,7 +142,7 @@ public final class ValidateTokenPosition {
         }
         queryExecution.close();
 
-        Resource newWordResource = null;
+        Resource newWordResource = hypotheses.get(0);
         LinkedHashMap<String, String> newStudentAnswer = new LinkedHashMap<>();
         if (hypotheses.size() > 1) {
             int i = 0;
@@ -100,6 +158,8 @@ public final class ValidateTokenPosition {
                     newStudentAnswer.put(entry.getKey(), entry.getValue());
                 }
             }
+        } else {
+            newStudentAnswer = studentAnswer;
         }
 
         Model hypothesisModel = buildModelFromStudentAnswer(newStudentAnswer, newWordResource);
@@ -145,7 +205,7 @@ public final class ValidateTokenPosition {
         Resource currentToken = null;
 
         for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
-            if (word.getKey().equals(hypothesis.getLocalName().toString())) {
+            if (word.getKey().isEmpty()) {
                 currentToken = hypothesis;
                 hypothesisModel.add(currentToken, x, "X");
             } else {

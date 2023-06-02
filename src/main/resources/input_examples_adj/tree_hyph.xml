@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<StartNode>
+    <InputVariables>
+        <DecisionTreeVarDecl name="X" type="word"/>
+        <DecisionTreeVarDecl name="Y" type="word"/>
+    </InputVariables>
+    <ThoughtBranch type="bool">
+        <QuestionNode _label="Токен слева от X ребенок токена справа от X? Справа от Х не корень?" type="bool"
+                      isSwitch="false">
+            <Expression>
+                <LogicalAnd>
+                    <ExistenceQuantifier varName="parent">
+                        <CheckClass>
+                            <Variable name="parent"/>
+                            <Class name="word"/>
+                        </CheckClass>
+                        <CheckRelationship>
+                            <Relationship name="isChild"/>
+                            <DecisionTreeVar name="X"/>
+                            <Variable name="parent"/>
+                        </CheckRelationship>
+                    </ExistenceQuantifier>
+                    <LogicalOr>
+                        <CheckRelationship>
+                            <Relationship name="isChild"/>
+                            <DecisionTreeVar name="Y"/>
+                            <DecisionTreeVar name="X"/>
+                        </CheckRelationship>
+                        <Compare operator="EQUAL">
+                            <GetByRelationship varName="X_">
+                                <DecisionTreeVar name="X"/>
+                                <Relationship name="isParent"/>
+                                <Boolean value="TRUE"/>
+                            </GetByRelationship>
+                            <GetByRelationship varName="Y_">
+                                <DecisionTreeVar name="Y"/>
+                                <Relationship name="isParent"/>
+                                <Boolean value="TRUE"/>
+                            </GetByRelationship>
+                        </Compare>
+                    </LogicalOr>
+                </LogicalAnd>
+            </Expression>
+            <Outcome value="True">
+                <BranchResultNode value="true">
+                </BranchResultNode>
+            </Outcome>
+            <Outcome value="False">
+                <BranchResultNode value="false">
+                </BranchResultNode>
+            </Outcome>
+        </QuestionNode>
+    </ThoughtBranch>
+</StartNode>
