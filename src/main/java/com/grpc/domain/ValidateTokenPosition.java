@@ -156,6 +156,15 @@ public final class ValidateTokenPosition {
         }
         queryExecution.close();
 
+        if (hypotheses.size() < 1) {
+            return new ValidateTokenPositionResult(
+                    new ArrayList<>(),
+                    new LinkedHashMap<>(),
+                    taskInTTLFormat,
+                    wordsToSelect
+            );
+        }
+
         Resource newWordResource = hypotheses.get(0);
         LinkedHashMap<String, String> newStudentAnswer = new LinkedHashMap<>();
         String hypothesysId = "";
