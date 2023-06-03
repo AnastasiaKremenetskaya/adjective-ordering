@@ -114,7 +114,7 @@ public final class ValidateTokenPosition {
         if (res.isEmpty()) {
             for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
                 if (entry.getKey().isEmpty()) {
-                    newStudentAnswer.put(String.valueOf(System.currentTimeMillis()), tokenToCheck);
+                    newStudentAnswer.put(String.format("h_%d",System.currentTimeMillis()), tokenToCheck);
                 } else {
                     newStudentAnswer.put(entry.getKey(), entry.getValue());
                 }
