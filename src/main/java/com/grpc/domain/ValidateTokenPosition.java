@@ -106,7 +106,7 @@ public final class ValidateTokenPosition {
                 hypothesisModel.add(currentToken, var, "X");
                 break;
             }
-            if (word.getValue().equals("-")) {
+            if (word.getValue().equals("-") && word.getKey().isEmpty()) {
                 if (currentToken == null) {
                     return new ValidateTokenPositionResult(
                             new ArrayList<Error>(),
@@ -283,17 +283,6 @@ public final class ValidateTokenPosition {
                 taskInTTLFormat,
                 wordsToSelect
         );
-//        }
-
-//        // Если проверили все гипотезы, но каждая ошибочна - возвращаем ошибку
-//        newStudentAnswer.remove(hypothesysId); // удалить предположительный ответ
-//
-//        return new ValidateTokenPositionResult(
-//                errors,
-//                newStudentAnswer,
-//                taskInTTLFormat,
-//                wordsToSelect
-//        );
     }
 
     private Model buildModelFromStudentAnswer(LinkedHashMap<String, String> studentAnswer, Resource hypothesis) {

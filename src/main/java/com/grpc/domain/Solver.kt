@@ -73,8 +73,8 @@ class Solver(
         }
         if (errorQuestion.equals(error_4)) {
             return getError4(
-                trace.get(i).variablesSnapshot["Y"],
                 trace.get(i).variablesSnapshot["X"],
+                trace.get(i).variablesSnapshot["Y"],
                 trace.get(i).variablesSnapshot["info_z"],
                 ERRORS_EXPLANATION[lang]?.get(error_4),
             )
@@ -91,15 +91,15 @@ class Solver(
         this.model = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
 
         val answer = DomainModel.decisionTree("hyph").main.getAnswer(model)
+        if (answer) {
+            return arrayListOf()
+        }
+
         val trace = DomainModel.decisionTree("hyph").main.getResults(model)
 
         val xVar = model.decisionTreeVariables["X"]
         val yVar = model.decisionTreeVariables["Y"]
         if (xVar == null || yVar == null) {
-            return arrayListOf()
-        }
-
-        if (answer) {
             return arrayListOf()
         }
 
