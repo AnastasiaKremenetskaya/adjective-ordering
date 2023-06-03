@@ -4,6 +4,7 @@ import its.model.DomainModel
 import its.reasoner.LearningSituation
 import its.reasoner.nodes.DecisionTreeReasoner._static.getAnswer
 import its.reasoner.nodes.DecisionTreeReasoner._static.getResults
+import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.RDFS
 import responses.ErrorPart
 
@@ -29,7 +30,11 @@ class Solver(
         val trace =
             DomainModel.decisionTree.main.getResults(model) //Получить посещенные узлы по всему дереву - в порядке полного вычисления
 
-        var i: Int = trace.size - 2
+        var i: Int = trace.size - 1
+        if (trace.size > 2) {
+            i = trace.size - 2
+        }
+
         var errorQuestion = trace.get(i).node.additionalInfo["error_type"].toString()
         if (errorQuestion.equals("null")) {
             i = trace.size
@@ -84,48 +89,64 @@ class Solver(
         this.lang = language
         this.model = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
 
-        //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
-        val answer = DomainModel.decisionTree("hyph").main.getAnswer(model) //Получить тру/фолс ответ
-        val trace =
-            DomainModel.decisionTree.main.getResults(model) //Получить посещенные узлы по всему дереву - в порядке полного вычисления
+        val answer = DomainModel.decisionTree("hyph").main.getAnswer(model)
+        val trace = DomainModel.decisionTree("hyph").main.getResults(model)
+
+        val xVar = model.decisionTreeVariables["X"]
+        val yVar = model.decisionTreeVariables["Y"]
+        if (xVar == null || yVar == null) {
+            return arrayListOf()
+        }
 
         if (answer) {
             return arrayListOf()
         }
 
         var errorQuestion = ""
-        var errorExplanation: ArrayList<String>? = null
 
         var i: Int = trace.size
         while (i-- > 0) {
-            errorQuestion = trace.get(i).node.additionalInfo["label"].toString()
-            errorExplanation = ERRORS_EXPLANATION[lang]?.get(errorQuestion)
-            if (!errorExplanation.isNullOrEmpty()) {
+            errorQuestion = trace.get(i).node.additionalInfo["error_type"].toString()
+            if (!errorQuestion.isNullOrEmpty()) {
                 break
             }
         }
-
-        val xVar = model.decisionTreeVariables["X"]
-        val yVar = model.decisionTreeVariables["Y"]
-        if (xVar == null || errorExplanation == null) {
-            return arrayListOf()
+        if (errorQuestion.equals(error_5)) {
+            return getError5(
+                trace.get(i).variablesSnapshot["X"],
+                trace.get(i).variablesSnapshot["Y"],
+                ERRORS_EXPLANATION[lang]?.get(error_5),
+            )
         }
-        var res = ArrayList<ErrorPart>()
-        if (errorQuestion == isXLeftToY && yVar != null) {
-            res = getParenthesisOrderingError(xVar, yVar, errorExplanation)
-        } else if (errorQuestion == isYLeftToX && yVar != null) {
-            res = getParenthesisOrderingError(yVar, xVar, errorExplanation)
-        } else if (errorQuestion == areHypernymsOrdered && yVar != null) {
-            res = getHypernymOrderingError(yVar, xVar, errorExplanation)
-        } else if (errorQuestion == isHyphenCorrect) {
-            res.add(ErrorPart(errorExplanation[0], "text"))
+        if (errorQuestion.equals(error_6)) {
+            return getError6(
+                trace.get(i).variablesSnapshot["X"],
+                trace.get(i).variablesSnapshot["Y"],
+                trace.get(i).variablesSnapshot["x_parent"],
+                trace.get(i).variablesSnapshot["y_parent"],
+                ERRORS_EXPLANATION[lang]?.get(error_6),
+            )
+        }
+        if (errorQuestion.equals(error_7)) {
+            return getError6(
+                trace.get(i).variablesSnapshot["X"],
+                trace.get(i).variablesSnapshot["Y"],
+                trace.get(i).variablesSnapshot["x_parent"],
+                trace.get(i).variablesSnapshot["y_parent"],
+                ERRORS_EXPLANATION[lang]?.get(error_7),
+            )
         }
 
-        return res
+        return ArrayList<ErrorPart>()
     }
 
     private fun getNodeLabel(decisionTreeVar: String): String {
         return model.model.getResource(NAMESPACE + decisionTreeVar).asResource().getProperty(RDFS.label).string
+    }
+
+    private fun getNodeClass(decisionTreeVar: String): String {
+        val a = model.model.getResource(NAMESPACE + decisionTreeVar).asResource().getProperty(RDF.type).`object`.asNode().localName
+        return POS[lang]?.get(a) ?: ""
     }
 
     private fun getNodeHypernym(decisionTreeVar: String): String {
@@ -136,28 +157,6 @@ class Solver(
             return HYPERNYMS[lang]?.get(stmt.resource.localName) ?: ""
         }
         return ""
-    }
-
-    private fun getHypernymOrderingError(
-        decisionTreeVarX: String,
-        decisionTreeVarY: String,
-        errorQuestion: ArrayList<String>
-    ): ArrayList<ErrorPart> {
-        val xNodeLabel = getNodeLabel(decisionTreeVarX)
-        val yNodeLabel = getNodeLabel(decisionTreeVarY)
-        val xNodeHypernym = getNodeHypernym(decisionTreeVarX)
-        val yNodeHypernym = getNodeHypernym(decisionTreeVarY)
-
-        var errorParts = ArrayList<ErrorPart>()
-        errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[0], "text"))
-        errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[1], "text"))
-        errorParts.add(ErrorPart(xNodeHypernym, "text"))
-        errorParts.add(ErrorPart(errorQuestion[2], "text"))
-        errorParts.add(ErrorPart(yNodeHypernym, "text"))
-
-        return errorParts
     }
 
     private fun getError1(
@@ -240,7 +239,8 @@ class Solver(
         errorQuestion: ArrayList<String>?
     ): ArrayList<ErrorPart> {
         if (X.isNullOrEmpty() || Y.isNullOrEmpty() || Z.isNullOrEmpty()
-            || errorQuestion.isNullOrEmpty()) {
+            || errorQuestion.isNullOrEmpty()
+        ) {
             return ArrayList<ErrorPart>()
         }
 
@@ -268,19 +268,95 @@ class Solver(
         return errorParts
     }
 
-    private fun getParenthesisOrderingError(
-        decisionTreeVarX: String,
-        decisionTreeVarY: String,
-        errorQuestion: ArrayList<String>
+    private fun getError5(
+        X: String?,
+        Y: String?,
+        errorQuestion: ArrayList<String>?
     ): ArrayList<ErrorPart> {
-        val xNodeLabel = getNodeLabel(decisionTreeVarX)
-        val yNodeLabel = getNodeLabel(decisionTreeVarY)
+        if (X.isNullOrEmpty() || Y.isNullOrEmpty() || errorQuestion.isNullOrEmpty()
+        ) {
+            return ArrayList<ErrorPart>()
+        }
+
+        val xNodeLabel = getNodeLabel(X)
+        val yNodeLabel = getNodeLabel(Y)
+        val xClass = getNodeClass(X)
+        val yClass = getNodeClass(Y)
 
         var errorParts = ArrayList<ErrorPart>()
+        errorParts.add(ErrorPart(errorQuestion[0], "text"))
         errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[1], "text"))
+        errorParts.add(ErrorPart(xClass, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[2], "text"))
+        errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[3], "text"))
+        errorParts.add(ErrorPart(yClass, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[4], "text"))
+
+        return errorParts
+    }
+
+    private fun getError6(
+        X: String?,
+        Y: String?,
+        XParent: String?,
+        YParent: String?,
+        errorQuestion: ArrayList<String>?
+    ): ArrayList<ErrorPart> {
+        if (X.isNullOrEmpty() || Y.isNullOrEmpty() ||
+            XParent.isNullOrEmpty() || YParent.isNullOrEmpty() || errorQuestion.isNullOrEmpty()
+        ) {
+            return ArrayList<ErrorPart>()
+        }
+
+        val xNodeLabel = getNodeLabel(X)
+        val yNodeLabel = getNodeLabel(Y)
+        val XParentNodeLabel = getNodeLabel(XParent)
+        val YParentNodeLabel = getNodeLabel(YParent)
+
+        var errorParts = ArrayList<ErrorPart>()
         errorParts.add(ErrorPart(errorQuestion[0], "text"))
         errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
         errorParts.add(ErrorPart(errorQuestion[1], "text"))
+        errorParts.add(ErrorPart(YParentNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[2], "text"))
+        errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[3], "text"))
+        errorParts.add(ErrorPart(XParentNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[4], "text"))
+
+        return errorParts
+    }
+
+    private fun getError7(
+        X: String?,
+        Y: String?,
+        XParent: String?,
+        YParent: String?,
+        errorQuestion: ArrayList<String>?
+    ): ArrayList<ErrorPart> {
+        if (X.isNullOrEmpty() || Y.isNullOrEmpty() ||
+            XParent.isNullOrEmpty() || YParent.isNullOrEmpty() || errorQuestion.isNullOrEmpty()
+        ) {
+            return ArrayList<ErrorPart>()
+        }
+
+        val xNodeLabel = getNodeLabel(X)
+        val yNodeLabel = getNodeLabel(Y)
+        val XParentNodeLabel = getNodeLabel(XParent)
+        val YParentNodeLabel = getNodeLabel(YParent)
+
+        var errorParts = ArrayList<ErrorPart>()
+        errorParts.add(ErrorPart(errorQuestion[0], "text"))
+        errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[1], "text"))
+        errorParts.add(ErrorPart(YParentNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[2], "text"))
+        errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[3], "text"))
+        errorParts.add(ErrorPart(XParentNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[4], "text"))
 
         return errorParts
     }
@@ -299,33 +375,16 @@ class Solver(
         const val NAMESPACE =
             "http://www.vstu.ru/poas/code#"
 
-        private var areHypernymsOrdered = "В одинаковом ли порядке расположены токены X и Y -- и гиперонимы X' и Y'?"
-        private var isXLeftToY = "Токен X слева от токена Y?"
-        private var isYLeftToX = "Токен Y слева от токена X?"
-        private var isHyphenCorrect = "Токен слева от X ребенок токена справа от X? Справа от Х не корень?"
-
         private var error_1 = "error_1"
         private var error_2 = "error_2"
         private var error_3 = "error_3"
         private var error_4 = "error_4"
 
-        private val ERRORS_EXPLANATION_RU = mapOf(
-            areHypernymsOrdered to arrayListOf(
-                "должно находиться перед",
-                "так как прилагательное,описывающее",
-                "должно находиться перед прилагательным",
-                "описывающим"
-            ),
-            isYLeftToX to arrayListOf(
-                "должно находиться перед",
-                "так как слово, являющееся дочерним, должно находиться левее"
-            ),
-            isXLeftToY to arrayListOf(
-                "должно находиться перед",
-                "так как слово, являющееся дочерним, должно находиться левее"
-            ),
-            isHyphenCorrect to arrayListOf("Дефис не должен стоять между выбранными словами, т.к. они не являются частями сложного прилагательного"),
+        private var error_5 = "error_5"
+        private var error_6 = "error_6"
+        private var error_7 = "error_7"
 
+        private val ERRORS_EXPLANATION_RU = mapOf(
             error_1 to arrayListOf(
                 "является частью сложного прилагательного со словом",
                 ",",
@@ -355,35 +414,42 @@ class Solver(
                 ", описывающее",
                 "должно находиться перед прилагательным",
                 ", описывающим"
+            ),
+            error_5 to arrayListOf(
+                "Дефисы ставятся только между частями сложных прилагательных. В данном случае",
+                "- это ",
+                ", а",
+                "- это ",
+                ", поэтому они не являются частью сложного прилагательного",
+            ),
+            error_6 to arrayListOf(
+                "Дефисы ставятся только между частями сложных прилагательных. В данном случае",
+                "- это простое прилагательное с главным словом",
+                ", а",
+                "- это прилагательное с главным словом",
+                ", поэтому они не являются частью сложного прилагательного",
+            ),
+            error_7 to arrayListOf(
+                "Дефисы ставятся только между частями одного сложного прилагательного. В данном случае",
+                "является частью сложного прилагательного с главным словом",
+                ", а",
+                "- это прилагательное с главным словом",
+                ", поэтому они не являются частью одного сложного прилагательного",
             )
         )
 
         private val ERRORS_EXPLANATION_EN = mapOf(
-            areHypernymsOrdered to arrayListOf(
-                "should precede",
-                "because adjective that describes",
-                "should precede adjective that describes"
-            ),
-            isYLeftToX to arrayListOf(
-                "should precede",
-                "because child word should be left to parent word"
-            ),
-            isXLeftToY to arrayListOf(
-                "should precede",
-                "because child word should be left to parent word"
-            ),
-            isHyphenCorrect to arrayListOf("Дефис не должен стоять между выбранными словами, т.к. они не являются частями сложного прилагательного"),
             error_1 to arrayListOf(
-                "является частью сложного прилагательного со словом",
+                "is a part of coumpound adjective with word",
                 ",",
-                "является частью сложного прилагательного с главным словом",
-                ", при этом",
-                "и",
-                "имеют общее главное слово",
-                "и должны располагаться (вместе со всеми зависимыми словами) в порядке своих категорий:  прилагательное",
-                ", описывающее",
-                "должно находиться перед прилагательным",
-                ", описывающим"
+                "is a part of coumpound adjective with word",
+                "furthermore",
+                "and",
+                "have common word they are related to",
+                "and should be placed (along with all dependent words) according to the order of their categories:  adjective",
+                "that describes",
+                "should precede adjective",
+                "that describes",
             ),
             error_2 to arrayListOf(
                 "should precede",
@@ -396,12 +462,33 @@ class Solver(
                 "is dependent from",
             ),
             error_4 to arrayListOf(
-                "должно находиться перед",
-                ", так как они оба являются прилагательными, относящимися к одному главному слову",
-                ", а прилагательное",
-                ", описывающее",
-                "должно находиться перед прилагательным",
-                ", описывающим"
+                "should precede",
+                ", because they both are adjectives dependent from word",
+                "and adjective",
+                "that describes",
+                "should precede adjective",
+                "that describes",
+            ),
+            error_5 to arrayListOf(
+                "Hyphen could be placed only between parts of compound adjectives. In this case",
+                "is",
+                "and",
+                "is",
+                "that's why mentioned words are not the parts of compound adjective",
+            ),
+            error_6 to arrayListOf(
+                "Hyphen could be placed only between parts of compound adjectives. In this case",
+                "is a non-compound adjective dependent from",
+                "and",
+                "- is an adjective dependent from",
+                "that's why mentioned words are not the parts of compound adjective",
+            ),
+            error_7 to arrayListOf(
+                "Hyphen could be placed only between parts of compound adjectives. In this case",
+                "is a part of compound adjective dependent from",
+                "and",
+                "- is an adjective dependent from",
+                "that's why mentioned words are not the parts of similar compound adjective",
             )
         )
 
@@ -432,9 +519,26 @@ class Solver(
             "Purpose" to "Purpose",
         )
 
+        private val POS_RU = mapOf(
+            "DET" to "детерминант",
+            "NOUN" to "главное существительное",
+            "ADJ" to "прилагательное",
+        )
+
+        private val POS_EN = mapOf(
+            "DET" to "determiner",
+            "NOUN" to "root noun",
+            "ADJ" to "adjective",
+        )
+
         private val HYPERNYMS = mapOf(
             "RU" to HYPERNYMS_RU,
             "EN" to HYPERNYMS_EN,
+        )
+
+        private val POS = mapOf(
+            "RU" to POS_RU,
+            "EN" to POS_EN,
         )
     }
 }

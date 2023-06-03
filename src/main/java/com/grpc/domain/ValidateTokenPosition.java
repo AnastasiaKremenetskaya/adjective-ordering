@@ -83,6 +83,7 @@ public final class ValidateTokenPosition {
             }
             if (xAdded) {
                 hypothesisModel.add(currentToken, var, "X");
+                break;
             }
             if (word.getValue().equals("-")) {
                 if (currentToken == null) {
@@ -109,10 +110,23 @@ public final class ValidateTokenPosition {
         ArrayList<Error> errors = new ArrayList<>();
         errors.add(new Error(res));
 
-        studentAnswer.remove(""); // удалить предположительный ответ
+        LinkedHashMap<String, String> newStudentAnswer = new LinkedHashMap<>();
+        if (res.isEmpty()) {
+            for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
+                if (entry.getKey().isEmpty()) {
+                    newStudentAnswer.put(String.valueOf(System.currentTimeMillis()), tokenToCheck);
+                } else {
+                    newStudentAnswer.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } else {
+            studentAnswer.remove(""); // удалить предположительный ответ
+            newStudentAnswer = studentAnswer;
+        }
+
         return new ValidateTokenPositionResult(
                 errors,
-                studentAnswer,
+                newStudentAnswer,
                 taskInTTLFormat,
                 wordsToSelect
         );
@@ -144,22 +158,23 @@ public final class ValidateTokenPosition {
 
         Resource newWordResource = hypotheses.get(0);
         LinkedHashMap<String, String> newStudentAnswer = new LinkedHashMap<>();
-        if (hypotheses.size() > 1) {
-            int i = 0;
+        String hypothesysId = "";
+
+        int i = 0;
+        while (i < hypotheses.size()) {
             for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
                 if (entry.getValue().equals(tokenToCheck)) {
-                    if (entry.getKey().isEmpty()) {
-                        newWordResource = hypotheses.get(i);
-                    }
                     String id = hypotheses.get(i).getLocalName().toString();
                     newStudentAnswer.put(id, tokenToCheck);
+                    if (entry.getKey().isEmpty()) {
+                        newWordResource = hypotheses.get(i);
+                        hypothesysId = id;
+                    }
                     i++;
                 } else {
                     newStudentAnswer.put(entry.getKey(), entry.getValue());
                 }
             }
-        } else {
-            newStudentAnswer = studentAnswer;
         }
 
         Model hypothesisModel = buildModelFromStudentAnswer(newStudentAnswer, newWordResource);
@@ -185,11 +200,11 @@ public final class ValidateTokenPosition {
         }
 
         // Если проверили все гипотезы, но каждая ошибочна - возвращаем ошибку
-        studentAnswer.remove(""); // удалить предположительный ответ
+        newStudentAnswer.remove(hypothesysId); // удалить предположительный ответ
 
         return new ValidateTokenPositionResult(
                 errors,
-                studentAnswer,
+                newStudentAnswer,
                 taskInTTLFormat,
                 wordsToSelect
         );
@@ -205,7 +220,8 @@ public final class ValidateTokenPosition {
         Resource currentToken = null;
 
         for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
-            if (word.getKey().isEmpty()) {
+            String a = hypothesis.getLocalName();
+            if (word.getKey().equals(a)) {
                 currentToken = hypothesis;
                 hypothesisModel.add(currentToken, x, "X");
             } else {
