@@ -1,5 +1,6 @@
 package com.grpc.domain;
 
+import com.github.jsonldjava.shaded.com.google.common.collect.ImmutableMap;
 import com.grpc.responses.ValidateTokenPositionResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.*;
@@ -20,6 +21,23 @@ import static com.grpc.domain.Solver.*;
 
 public final class ValidateTokenPosition {
     private static ValidateTokenPosition INSTANCE;
+
+    static final ImmutableMap<Language, ArrayList<String>> FINISH_ERR = ImmutableMap.<Language, ArrayList<String>>builder()
+            .put(Language.RU, new ArrayList<>(
+                            Arrays.asList(
+                                    "Справа от",
+                                    "отсутствует дефис, в то время как оно является частью сложного прилагательного и должен быть соединен дефисом со своим главным словом"
+                            )
+                    )
+            )
+            .put(Language.EN, new ArrayList<>(
+                            Arrays.asList(
+                                    "No hyphen left to",
+                                    "whether it is a part of compond adjective and should be hyphened with main word"
+                            )
+                    )
+            )
+            .build();
 
     private ValidateTokenPosition() {
     }
@@ -61,6 +79,9 @@ public final class ValidateTokenPosition {
         }
         this.DIR_PATH_TO_TASK = prop.getProperty("app.path");
 
+        if (wordsToSelect.contains("-") && wordsToSelect.size() == 1) {
+            return validateFinish();
+        }
         if (tokenToCheck.equals("-")) {
             return validateHyphen();
         }
@@ -114,7 +135,7 @@ public final class ValidateTokenPosition {
         if (res.isEmpty()) {
             for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
                 if (entry.getKey().isEmpty()) {
-                    newStudentAnswer.put(String.format("h_%d",System.currentTimeMillis()), tokenToCheck);
+                    newStudentAnswer.put(String.format("h_%d", System.currentTimeMillis()), tokenToCheck);
                 } else {
                     newStudentAnswer.put(entry.getKey(), entry.getValue());
                 }
@@ -170,19 +191,20 @@ public final class ValidateTokenPosition {
         String hypothesysId = "";
 
         int i = 0;
-        while (i < hypotheses.size()) {
-            for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
-                if (entry.getValue().equals(tokenToCheck)) {
-                    String id = hypotheses.get(i).getLocalName().toString();
-                    newStudentAnswer.put(id, tokenToCheck);
-                    if (entry.getKey().isEmpty()) {
-                        newWordResource = hypotheses.get(i);
-                        hypothesysId = id;
-                    }
-                    i++;
-                } else {
-                    newStudentAnswer.put(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
+            if (i > hypotheses.size()) {
+                break;
+            }
+            if (entry.getValue().equals(tokenToCheck)) {
+                String id = hypotheses.get(i).getLocalName().toString();
+                newStudentAnswer.put(id, tokenToCheck);
+                if (entry.getKey().isEmpty()) {
+                    newWordResource = hypotheses.get(i);
+                    hypothesysId = id;
                 }
+                i++;
+            } else {
+                newStudentAnswer.put(entry.getKey(), entry.getValue());
             }
         }
 
@@ -219,6 +241,61 @@ public final class ValidateTokenPosition {
         );
     }
 
+    private ValidateTokenPositionResult validateFinish() throws FileNotFoundException {
+        Model hypothesisModel = buildFinishModel(studentAnswer);
+
+        // Write the model to a string in TTL format
+        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
+        RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
+
+        LinkedHashMap<String, String> leftAdjectivesToPlaceHyphenWithParents = Companion.getInstance().solveFinish(
+                language.name(),
+                DIR_PATH_TO_TASK
+        );
+        ArrayList<Error> errors = new ArrayList<>();
+        ArrayList<ErrorPart> errorParts = new ArrayList<>();
+
+        boolean nextShouldBeHyphen = false;
+        String leftAdj = "";
+        String leftAdjParent = "";
+        for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
+            if (nextShouldBeHyphen) {
+                if (!entry.getValue().equals("-")) {
+                    errorParts.add(new ErrorPart(FINISH_ERR.get(language).get(0), "text"));
+                    errorParts.add(new ErrorPart(leftAdj, "lexeme"));
+                    errorParts.add(new ErrorPart(FINISH_ERR.get(language).get(1), "text"));
+                    errorParts.add(new ErrorPart(leftAdjParent, "lexeme"));
+                }
+                nextShouldBeHyphen = false;
+            }
+            if (leftAdjectivesToPlaceHyphenWithParents.containsKey(entry.getValue())) {
+                leftAdj = entry.getValue();
+                leftAdjParent = leftAdjectivesToPlaceHyphenWithParents.get(entry.getValue());
+                nextShouldBeHyphen = true;
+            }
+        }
+
+        errors.add(new Error(errorParts));
+
+        return new ValidateTokenPositionResult(
+                errors,
+                studentAnswer,
+                taskInTTLFormat,
+                wordsToSelect
+        );
+//        }
+
+//        // Если проверили все гипотезы, но каждая ошибочна - возвращаем ошибку
+//        newStudentAnswer.remove(hypothesysId); // удалить предположительный ответ
+//
+//        return new ValidateTokenPositionResult(
+//                errors,
+//                newStudentAnswer,
+//                taskInTTLFormat,
+//                wordsToSelect
+//        );
+    }
+
     private Model buildModelFromStudentAnswer(LinkedHashMap<String, String> studentAnswer, Resource hypothesis) {
         Model hypothesisModel = model;
 
@@ -243,6 +320,26 @@ public final class ValidateTokenPosition {
             prevToken = currentToken;
         }
         ;
+
+        return hypothesisModel;
+    }
+
+    private Model buildFinishModel(LinkedHashMap<String, String> studentAnswer) {
+        Model hypothesisModel = model;
+
+        // для всех гипотез проверить на ошибки
+        Property x = model.createProperty(NAMESPACE + "var...");
+
+//        for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
+        Resource currentToken = hypothesisModel.getResource(NAMESPACE + "item_3");
+        hypothesisModel.add(currentToken, x, "X");
+
+//            if (prevToken != null) {
+//                hypothesisModel.add(prevToken, p, currentToken);
+//            }
+//            prevToken = currentToken;
+//        }
+//        ;
 
         return hypothesisModel;
     }

@@ -7,6 +7,7 @@ import its.reasoner.nodes.DecisionTreeReasoner._static.getResults
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.RDFS
 import responses.ErrorPart
+import java.util.LinkedHashMap
 
 
 class Solver(
@@ -138,6 +139,29 @@ class Solver(
         }
 
         return ArrayList<ErrorPart>()
+    }
+
+    fun solveFinish(
+        language: String,
+        DIR_PATH_TO_TASK: String
+    ): LinkedHashMap<String, String> {
+        this.lang = language
+        this.model = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
+
+        val trace = DomainModel.decisionTree("finish").main.getResults(model)
+
+        val leftAdjectivesToPlaceHyphenWithParents = LinkedHashMap<String, String>()
+
+        var i: Int = trace.size
+        while (i-- > 0) {
+            val adj = trace.get(i).variablesSnapshot["Y"].toString()
+            val adjParent = trace.get(i).variablesSnapshot["y_parent"].toString()
+            if (!adj.equals("null") && !adjParent.equals("null")) {
+                leftAdjectivesToPlaceHyphenWithParents.put(getNodeLabel(adj), getNodeLabel(adjParent))
+            }
+        }
+
+        return leftAdjectivesToPlaceHyphenWithParents
     }
 
     private fun getNodeLabel(decisionTreeVar: String): String {
@@ -435,7 +459,7 @@ class Solver(
                 ", а",
                 "- это прилагательное с главным словом",
                 ", поэтому они не являются частью одного сложного прилагательного",
-            )
+            ),
         )
 
         private val ERRORS_EXPLANATION_EN = mapOf(

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<StartNode>
+    <InputVariables>
+        <DecisionTreeVarDecl name="X" type="NOUN"/>
+    </InputVariables>
+    <ThoughtBranch type="bool" >
+        <CycleAggregationNode alias="∀  прилагательных, у кого родитель не X ?
+AND
+Y" operator="AND" >
+            <SelectorExpression>
+                <LogicalAnd><CheckClass><Variable name="Y"/><Class name="ADJ"/></CheckClass><LogicalNot><CheckRelationship><Relationship name="isChild"/><Variable name="Y"/><DecisionTreeVar name="X"/></CheckRelationship></LogicalNot></LogicalAnd>
+            </SelectorExpression>
+            <DecisionTreeVarDecl name="Y" type="word"/>
+            <Outcome value="True" >
+                <BranchResultNode  value="true">
+                </BranchResultNode>
+            </Outcome>
+            <Outcome value="False" >
+                <BranchResultNode  value="false">
+                </BranchResultNode>
+            </Outcome>
+            <ThoughtBranch type="bool" paramName="Y" >
+                <FindActionNode alias="Найти родителя Y
+y_parent" >
+                    <Expression>
+                        <GetByRelationship varName="y_parent"><DecisionTreeVar name="Y"/><Relationship name="isChild"/><Boolean value="TRUE"/></GetByRelationship>
+                    </Expression>
+                    <DecisionTreeVarDecl name="y_parent" type="word"/>
+                    <Outcome value="none" >
+                        <BranchResultNode  value="false">
+                        </BranchResultNode>
+                    </Outcome>
+                    <Outcome value="found" >
+                        <BranchResultNode  value="true">
+                        </BranchResultNode>
+                    </Outcome>
+                </FindActionNode>
+            </ThoughtBranch>
+        </CycleAggregationNode>
+    </ThoughtBranch>
+</StartNode>
