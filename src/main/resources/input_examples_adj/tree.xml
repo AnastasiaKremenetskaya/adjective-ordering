@@ -587,8 +587,8 @@ X?"
                                                 <BranchResultNode value="true">
                                                 </BranchResultNode>
                                             </Outcome>
-                                            <Outcome _error_type="error_3" value="False">
-                                                <BranchResultNode value="false">
+                                            <Outcome value="False">
+                                                <BranchResultNode _error_type="error_3" value="false">
                                                 </BranchResultNode>
                                             </Outcome>
                                         </QuestionNode>

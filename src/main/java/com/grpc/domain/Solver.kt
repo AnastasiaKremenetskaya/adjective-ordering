@@ -73,8 +73,8 @@ class Solver(
         }
         if (errorQuestion.equals(error_4)) {
             return getError4(
-                trace.get(i).variablesSnapshot["X"],
                 trace.get(i).variablesSnapshot["Y"],
+                trace.get(i).variablesSnapshot["X"],
                 trace.get(i).variablesSnapshot["info_z"],
                 ERRORS_EXPLANATION[lang]?.get(error_4),
             )
