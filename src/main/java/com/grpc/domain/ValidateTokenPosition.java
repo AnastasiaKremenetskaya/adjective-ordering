@@ -26,14 +26,14 @@ public final class ValidateTokenPosition {
             .put(Language.RU, new ArrayList<>(
                             Arrays.asList(
                                     "Справа от",
-                                    "отсутствует дефис, в то время как оно является частью сложного прилагательного и должен быть соединен дефисом со своим главным словом"
+                                    "отсутствует дефис, в то время как это слово является частью сложного прилагательного и должно быть соединено дефисом со своим главным словом"
                             )
                     )
             )
             .put(Language.EN, new ArrayList<>(
                             Arrays.asList(
                                     "No hyphen left to",
-                                    "whether it is a part of compond adjective and should be hyphened with main word"
+                                    "whether this word is a part of compond adjective and should be hyphened with main word"
                             )
                     )
             )
