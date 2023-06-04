@@ -79,7 +79,7 @@ public final class ValidateTokenPosition {
         }
         this.DIR_PATH_TO_TASK = prop.getProperty("app.path");
 
-        if (wordsToSelect.contains("-") && wordsToSelect.size() == 1) {
+        if (wordsToSelect.contains("-") && wordsToSelect.size() == 1 && tokenToCheck.isEmpty()) {
             return validateFinish();
         }
         if (tokenToCheck.equals("-")) {
