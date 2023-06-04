@@ -206,26 +206,36 @@ class Solver(
         val yNodeHypernym = getNodeHypernym(Y_)
 
         var errorParts = ArrayList<ErrorPart>()
-        errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[0], "text"))
-        errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[1], "text"))
+        errorParts.add(ErrorPart(xNodeLabel, "lexeme")) // X
+        errorParts.add(ErrorPart(errorQuestion[0], "text")) // является
+        if (xNodeLabel != x_NodeLabel) {
+            errorParts.add(ErrorPart(errorQuestion[1], "text")) // частью сложного прилагательного с главным словом
+            errorParts.add(ErrorPart(x_NodeLabel, "lexeme")) // X_
+        } else {
+            errorParts.add(ErrorPart(errorQuestion[2], "text")) // простым прилагательным
+        }
+        errorParts.add(ErrorPart(errorQuestion[3], "text")) // ,
         errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[2], "text"))
-        errorParts.add(ErrorPart(y_NodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[3], "text"))
-        errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[4], "text"))
-        errorParts.add(ErrorPart(y_NodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[5], "text"))
-        errorParts.add(ErrorPart(zNodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[6], "text"))
-        errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[4], "text")) // является
+        if (yNodeLabel != y_NodeLabel) {
+            errorParts.add(ErrorPart(errorQuestion[5], "text")) // частью сложного прилагательного с главным словом
+            errorParts.add(ErrorPart(y_NodeLabel, "lexeme")) // Y_
+        } else {
+            errorParts.add(ErrorPart(errorQuestion[6], "text")) // простым прилагательным
+        }
         errorParts.add(ErrorPart(errorQuestion[7], "text"))
-        errorParts.add(ErrorPart(xNodeHypernym, "lexeme"))
+        errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
         errorParts.add(ErrorPart(errorQuestion[8], "text"))
         errorParts.add(ErrorPart(y_NodeLabel, "lexeme"))
         errorParts.add(ErrorPart(errorQuestion[9], "text"))
+        errorParts.add(ErrorPart(zNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[10], "text"))
+        errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[11], "text"))
+        errorParts.add(ErrorPart(xNodeHypernym, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[12], "text"))
+        errorParts.add(ErrorPart(y_NodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[13], "text"))
         errorParts.add(ErrorPart(yNodeHypernym, "lexeme"))
 
         return errorParts
@@ -410,9 +420,13 @@ class Solver(
 
         private val ERRORS_EXPLANATION_RU = mapOf(
             error_1 to arrayListOf(
-                "является частью сложного прилагательного со словом",
+                "является",
+                "частью сложного прилагательного с главным словом",
+                "простым прилагательным",
                 ",",
-                "является частью сложного прилагательного с главным словом",
+                "является",
+                "частью сложного прилагательного с главным словом",
+                "простым прилагательным",
                 ", при этом",
                 "и",
                 "имеют общее главное слово",
@@ -464,9 +478,13 @@ class Solver(
 
         private val ERRORS_EXPLANATION_EN = mapOf(
             error_1 to arrayListOf(
-                "is a part of coumpound adjective with word",
+                "is",
+                "a part of coumpound adjective with word",
+                "an adjective",
                 ",",
-                "is a part of coumpound adjective with word",
+                "is",
+                "a part of coumpound adjective with word",
+                "an adjective",
                 "furthermore",
                 "and",
                 "have common word they are related to",
