@@ -7,6 +7,7 @@ import its.reasoner.nodes.DecisionTreeReasoner._static.getResults
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.RDFS
 import responses.ErrorPart
+import java.io.File
 import java.util.LinkedHashMap
 
 
@@ -17,10 +18,13 @@ class Solver(
 
     fun solve(
         language: String,
-        DIR_PATH_TO_TASK: String
+        DIR_PATH_TO_TASK: String,
+        TTL_FILENAME: String
     ): ArrayList<ErrorPart> {
+        val filepath = "$DIR_PATH_TO_TASK$TTL_FILENAME"
         this.lang = language
-        this.model = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
+        this.model = LearningSituation(filepath)
+        deleteFile(filepath)
 
         //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
         val answer = DomainModel.decisionTree.main.getAnswer(model) //Получить тру/фолс ответ
@@ -85,10 +89,13 @@ class Solver(
 
     fun solveHyphen(
         language: String,
-        DIR_PATH_TO_TASK: String
+        DIR_PATH_TO_TASK: String,
+        TTL_FILENAME: String
     ): ArrayList<ErrorPart> {
+        val filepath = "$DIR_PATH_TO_TASK$TTL_FILENAME"
         this.lang = language
-        this.model = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
+        this.model = LearningSituation(filepath)
+        deleteFile(filepath)
 
         val answer = DomainModel.decisionTree("hyph").main.getAnswer(model)
         if (answer) {
@@ -143,10 +150,13 @@ class Solver(
 
     fun solveFinish(
         language: String,
-        DIR_PATH_TO_TASK: String
+        DIR_PATH_TO_TASK: String,
+        TTL_FILENAME: String
     ): LinkedHashMap<String, String> {
+        val filepath = "$DIR_PATH_TO_TASK$TTL_FILENAME"
         this.lang = language
-        this.model = LearningSituation("$DIR_PATH_TO_TASK$TTL_FILENAME.ttl")
+        this.model = LearningSituation(filepath)
+        deleteFile(filepath)
 
         val trace = DomainModel.decisionTree("finish").main.getResults(model)
 
@@ -395,6 +405,17 @@ class Solver(
         return errorParts
     }
 
+    fun deleteFile(path:String) {
+        val file = File(path)
+
+        val result = file.delete()
+        if (result) {
+            println("Deletion succeeded.")
+        } else {
+            println("Deletion failed.")
+        }
+    }
+
     companion object {
         @Volatile
         private var instance: Solver? = null
@@ -404,8 +425,6 @@ class Solver(
                 instance ?: Solver().also { instance = it }
             }
 
-        const val TTL_FILENAME =
-            "task"
         const val NAMESPACE =
             "http://www.vstu.ru/poas/code#"
 

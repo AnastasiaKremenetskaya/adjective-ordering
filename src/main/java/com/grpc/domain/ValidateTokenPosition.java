@@ -4,10 +4,7 @@ import com.github.jsonldjava.shaded.com.google.common.collect.ImmutableMap;
 import com.grpc.responses.ValidateTokenPositionResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.*;
 import com.gpch.grpc.protobuf.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -123,10 +120,11 @@ public final class ValidateTokenPosition {
         ;
 
         // Write the model to a string in TTL format
-        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
+        String TTL_FILENAME = String.format("%d.ttl", System.currentTimeMillis());
+        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME);
         RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
 
-        ArrayList<ErrorPart> res = Companion.getInstance().solveHyphen(language.name(), DIR_PATH_TO_TASK);
+        ArrayList<ErrorPart> res = Companion.getInstance().solveHyphen(language.name(), DIR_PATH_TO_TASK, TTL_FILENAME);
 
         ArrayList<Error> errors = new ArrayList<>();
         errors.add(new Error(res));
@@ -211,10 +209,11 @@ public final class ValidateTokenPosition {
         Model hypothesisModel = buildModelFromStudentAnswer(newStudentAnswer, newWordResource);
 
         // Write the model to a string in TTL format
-        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
+        String TTL_FILENAME = String.format("%d.ttl", System.currentTimeMillis());
+        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME);
         RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
 
-        ArrayList<ErrorPart> res = Companion.getInstance().solve(language.name(), DIR_PATH_TO_TASK);
+        ArrayList<ErrorPart> res = Companion.getInstance().solve(language.name(), DIR_PATH_TO_TASK, TTL_FILENAME);
 
         ArrayList<Error> errors = new ArrayList<>();
         errors.add(new Error(res));
@@ -245,12 +244,14 @@ public final class ValidateTokenPosition {
         Model hypothesisModel = buildFinishModel(studentAnswer);
 
         // Write the model to a string in TTL format
-        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME + ".ttl");
+        String TTL_FILENAME = String.format("%d.ttl", System.currentTimeMillis());
+        OutputStream out = new FileOutputStream(DIR_PATH_TO_TASK + TTL_FILENAME);
         RDFDataMgr.write(out, hypothesisModel, Lang.TURTLE);
 
         LinkedHashMap<String, String> leftAdjectivesToPlaceHyphenWithParents = Companion.getInstance().solveFinish(
                 language.name(),
-                DIR_PATH_TO_TASK
+                DIR_PATH_TO_TASK,
+                TTL_FILENAME
         );
         ArrayList<Error> errors = new ArrayList<>();
         ArrayList<ErrorPart> errorParts = new ArrayList<>();
@@ -319,16 +320,12 @@ public final class ValidateTokenPosition {
         // для всех гипотез проверить на ошибки
         Property x = model.createProperty(NAMESPACE + "var...");
 
-//        for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
-        Resource currentToken = hypothesisModel.getResource(NAMESPACE + "item_3");
-        hypothesisModel.add(currentToken, x, "X");
+        Resource lastElement = null;
+        for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
+            lastElement = hypothesisModel.getResource(NAMESPACE + "item_3");
+        }
 
-//            if (prevToken != null) {
-//                hypothesisModel.add(prevToken, p, currentToken);
-//            }
-//            prevToken = currentToken;
-//        }
-//        ;
+        hypothesisModel.add(lastElement, x, "X");
 
         return hypothesisModel;
     }
