@@ -322,7 +322,7 @@ public final class ValidateTokenPosition {
 
         Resource lastElement = null;
         for (Map.Entry<String, String> word : studentAnswer.entrySet()) {
-            lastElement = hypothesisModel.getResource(NAMESPACE + "item_3");
+            lastElement = hypothesisModel.getResource(NAMESPACE + word.getKey());
         }
 
         hypothesisModel.add(lastElement, x, "X");
