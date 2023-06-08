@@ -29,7 +29,7 @@ public final class ValidateTokenPosition {
             )
             .put(Language.EN, new ArrayList<>(
                             Arrays.asList(
-                                    "No hyphen left to",
+                                    "No hyphen right to",
                                     "whether this word is a part of compond adjective and should be hyphened with main word"
                             )
                     )
