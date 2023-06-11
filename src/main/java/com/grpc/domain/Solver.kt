@@ -53,10 +53,10 @@ class Solver(
 
         if (errorQuestion.equals(error_1)) {
             return getError1(
-                trace.get(i).variablesSnapshot["X"],
-                trace.get(i).variablesSnapshot["X_"],
                 trace.get(i).variablesSnapshot["Y"],
                 trace.get(i).variablesSnapshot["Y_"],
+                trace.get(i).variablesSnapshot["X"],
+                trace.get(i).variablesSnapshot["X_"],
                 trace.get(i).variablesSnapshot["z"],
                 ERRORS_EXPLANATION[lang]?.get(error_1),
             )
@@ -77,8 +77,8 @@ class Solver(
         }
         if (errorQuestion.equals(error_4)) {
             return getError4(
-                trace.get(i).variablesSnapshot["Y"],
                 trace.get(i).variablesSnapshot["X"],
+                trace.get(i).variablesSnapshot["Y"],
                 trace.get(i).variablesSnapshot["info_z"],
                 ERRORS_EXPLANATION[lang]?.get(error_4),
             )
@@ -450,17 +450,17 @@ class Solver(
                 "и",
                 "имеют общее главное слово",
                 "и должны располагаться (вместе со всеми зависимыми словами) в порядке своих категорий:  прилагательное",
-                "описывающее",
-                "должно находиться перед прилагательным",
-                "описывающим"
+                ", описывающее",
+                ", должно находиться перед прилагательным",
+                ", описывающим"
             ),
             error_2 to arrayListOf(
-                "должен стоять перед",
+                "должно находиться перед",
                 ", так как",
                 "является словом, зависимым от",
             ),
             error_3 to arrayListOf(
-                "должен стоять перед",
+                "должно находиться перед",
                 ", так как",
                 "является словом, зависимым от",
             ),
