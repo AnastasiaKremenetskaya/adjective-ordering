@@ -188,7 +188,7 @@ class Solver(
         val iter = model.model.getResource(NAMESPACE + decisionTreeVar).listProperties(hasHypernym)
         while (iter.hasNext()) {
             val stmt = iter.nextStatement()
-            return HYPERNYMS[lang]?.get(stmt.resource.localName) ?: ""
+            return stmt.resource.localName
         }
         return ""
     }
@@ -207,13 +207,31 @@ class Solver(
             return ArrayList<ErrorPart>()
         }
 
-        val xNodeLabel = getNodeLabel(X)
-        val yNodeLabel = getNodeLabel(Y)
-        val x_NodeLabel = getNodeLabel(X_)
-        val y_NodeLabel = getNodeLabel(Y_)
+        var xNodeHypernym = getNodeHypernym(X_)
+        var yNodeHypernym = getNodeHypernym(Y_)
+
+        var Checked_X = X
+        var Checked_X_ = X_
+        var Checked_Y = Y
+        var Checked_Y_ = Y_
+
+        if (HYPERNYMS_ORDER[xNodeHypernym]!! > HYPERNYMS_ORDER[yNodeHypernym]!!) {
+            Checked_X = Y
+            Checked_X_ = Y_
+            Checked_Y = X
+            Checked_Y_ = X_
+            val temp = xNodeHypernym
+            xNodeHypernym = yNodeHypernym
+            yNodeHypernym = temp
+        }
+
+        val xNodeLabel = getNodeLabel(Checked_X)
+        val yNodeLabel = getNodeLabel(Checked_Y)
+        val x_NodeLabel = getNodeLabel(Checked_X_)
+        val y_NodeLabel = getNodeLabel(Checked_Y_)
+        xNodeHypernym = HYPERNYMS[lang]?.get(xNodeHypernym) ?: ""
+        yNodeHypernym = HYPERNYMS[lang]?.get(yNodeHypernym) ?: ""
         val zNodeLabel = getNodeLabel(Z)
-        val xNodeHypernym = getNodeHypernym(X_)
-        val yNodeHypernym = getNodeHypernym(Y_)
 
         var errorParts = ArrayList<ErrorPart>()
         errorParts.add(ErrorPart(xNodeLabel, "lexeme")) // X
@@ -288,11 +306,25 @@ class Solver(
             return ArrayList<ErrorPart>()
         }
 
-        val xNodeLabel = getNodeLabel(X)
-        val yNodeLabel = getNodeLabel(Y)
+        var xNodeHypernym = getNodeHypernym(X)
+        var yNodeHypernym = getNodeHypernym(Y)
+
+        var Checked_X = X
+        var Checked_Y = Y
+
+        if (HYPERNYMS_ORDER[xNodeHypernym]!! > HYPERNYMS_ORDER[yNodeHypernym]!!) {
+            Checked_X = Y
+            Checked_Y = X
+            val temp = xNodeHypernym
+            xNodeHypernym = yNodeHypernym
+            yNodeHypernym = temp
+        }
+
+        val xNodeLabel = getNodeLabel(Checked_X)
+        val yNodeLabel = getNodeLabel(Checked_Y)
         val zNodeLabel = getNodeLabel(Z)
-        val xNodeHypernym = getNodeHypernym(X)
-        val yNodeHypernym = getNodeHypernym(Y)
+        xNodeHypernym = HYPERNYMS[lang]?.get(xNodeHypernym) ?: ""
+        yNodeHypernym = HYPERNYMS[lang]?.get(yNodeHypernym) ?: ""
 
         var errorParts = ArrayList<ErrorPart>()
         errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
@@ -498,13 +530,13 @@ class Solver(
         private val ERRORS_EXPLANATION_EN = mapOf(
             error_1 to arrayListOf(
                 "is",
-                "a part of coumpound adjective with word",
+                "a part of compound adjective with word",
                 "an adjective",
                 ",",
                 "is",
-                "a part of coumpound adjective with word",
+                "a part of compound adjective with word",
                 "an adjective",
-                "furthermore",
+                "so",
                 "and",
                 "have common word they are related to",
                 "and should be placed (along with all dependent words) according to the order of their categories:  adjective",
@@ -561,23 +593,40 @@ class Solver(
         private val HYPERNYMS_RU = mapOf(
             "Opinion" to "Мнение",
             "Size" to "Размер",
+            "PhysicalQuality" to "Физические свойства",
             "Age" to "Возраст",
             "Shape" to "Форма",
             "Colour" to "Цвет",
             "Origin" to "Национальность",
             "Material" to "Материал",
+            "Type" to "Тип",
             "Purpose" to "Цель",
         )
 
         private val HYPERNYMS_EN = mapOf(
             "Opinion" to "Opinion",
             "Size" to "Size",
+            "PhysicalQuality" to "PhysicalQuality",
             "Age" to "Age",
             "Shape" to "Shape",
             "Colour" to "Colour",
             "Origin" to "Origin",
             "Material" to "Material",
+            "Type" to "Type",
             "Purpose" to "Purpose",
+        )
+
+        private val HYPERNYMS_ORDER = mapOf(
+            "Opinion" to 1,
+            "Size" to 2,
+            "PhysicalQuality" to 3,
+            "Age" to 4,
+            "Shape" to 5,
+            "Colour" to 6,
+            "Origin" to 7,
+            "Material" to 8,
+            "Type" to 9,
+            "Purpose" to 10,
         )
 
         private val POS_RU = mapOf(

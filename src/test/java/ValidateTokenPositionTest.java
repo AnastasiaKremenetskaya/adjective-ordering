@@ -96,4 +96,24 @@ public class ValidateTokenPositionTest {
         assertEquals(", описывающим", res.getErrors().get(0).getError(20).getText());
         assertEquals("Материал", res.getErrors().get(0).getError(21).getText());
     }
+
+    @Test
+    public void testError4WrongHypernymOrder2() throws IOException {
+        String task = "@prefix ns1: <http://www.vstu.ru/poas/code#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\nns1:item_0 a ns1:ADJ ;\n    rdfs:label \"nice\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild ns1:item_2 .\n\nns1:item_1 a ns1:ADJ ;\n    rdfs:label \"mash\" ;\n    ns1:hasHypernym ns1:PhysicalQuality ;\n    ns1:isChild ns1:item_2 .\n\nns1:item_2 a ns1:NOUN ;\n    rdfs:label \"soup\" .\n";
+        ArrayList<String> wordsToSelect = new ArrayList<>();
+        wordsToSelect.add("mash");
+
+        LinkedHashMap<String, String> studentAnswerMap = new LinkedHashMap<>();
+        studentAnswerMap.put("", "mash");
+        studentAnswerMap.put("item_0", "nice");
+        studentAnswerMap.put("item_2", "soup");
+
+        ValidateTokenPositionResult res = validator.checkTokenPosition(lang, task, studentAnswerMap, "mash", wordsToSelect);
+        assertEquals("nice", res.getErrors().get(0).getError(0).getText());
+        assertEquals("должно находиться перед", res.getErrors().get(0).getError(1).getText());
+        assertEquals("mash", res.getErrors().get(0).getError(2).getText());
+        assertEquals(", так как они оба являются прилагательными, относящимися к одному главному слову", res.getErrors().get(0).getError(3).getText());
+        assertEquals("Мнение", res.getErrors().get(0).getError(8).getText());
+        assertEquals("Физические свойства", res.getErrors().get(0).getError(12).getText());
+    }
 }
