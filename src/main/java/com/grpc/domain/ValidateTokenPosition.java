@@ -139,7 +139,6 @@ public final class ValidateTokenPosition {
                 }
             }
         } else {
-            studentAnswer.remove(""); // удалить предположительный ответ
             newStudentAnswer = studentAnswer;
         }
 
@@ -230,11 +229,18 @@ public final class ValidateTokenPosition {
         }
 
         // Если проверили все гипотезы, но каждая ошибочна - возвращаем ошибку
-        newStudentAnswer.remove(hypothesysId); // удалить предположительный ответ
+        LinkedHashMap<String, String> newestStudentAnswer = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : newStudentAnswer.entrySet()) {
+            if (entry.getKey().equals(hypothesysId)) {
+                newestStudentAnswer.put("", tokenToCheck);
+            } else {
+                newestStudentAnswer.put(entry.getKey(), entry.getValue());
+            }
+        }
 
         return new ValidateTokenPositionResult(
                 errors,
-                newStudentAnswer,
+                newestStudentAnswer,
                 taskInTTLFormat,
                 wordsToSelect
         );
