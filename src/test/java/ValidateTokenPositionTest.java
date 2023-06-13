@@ -141,13 +141,13 @@ public class ValidateTokenPositionTest {
         assertEquals("salt", res.getErrors().get(0).getError(0).getText());
         assertEquals("является частью сложного прилагательного с главным словом", res.getErrors().get(0).getError(1).getText());
         assertEquals("cod", res.getErrors().get(0).getError(2).getText());
-        assertEquals("Japanese", res.getErrors().get(0).getError(10).getText());
-        assertEquals(", описывающее", res.getErrors().get(0).getError(11).getText());
-        assertEquals("Национальность", res.getErrors().get(0).getError(12).getText());
-        assertEquals(", должно находиться перед прилагательным", res.getErrors().get(0).getError(13).getText());
-        assertEquals("cod", res.getErrors().get(0).getError(14).getText());
-        assertEquals(", описывающим", res.getErrors().get(0).getError(15).getText());
-        assertEquals("Материал", res.getErrors().get(0).getError(16).getText());
+        assertEquals("Japanese", res.getErrors().get(0).getError(11).getText());
+        assertEquals(", описывающее", res.getErrors().get(0).getError(12).getText());
+        assertEquals("Национальность", res.getErrors().get(0).getError(13).getText());
+        assertEquals(", должно находиться перед прилагательным", res.getErrors().get(0).getError(14).getText());
+        assertEquals("cod", res.getErrors().get(0).getError(15).getText());
+        assertEquals(", описывающим", res.getErrors().get(0).getError(16).getText());
+        assertEquals("Материал", res.getErrors().get(0).getError(17).getText());
     }
 
     @Test
@@ -274,13 +274,13 @@ public class ValidateTokenPositionTest {
         assertEquals("amazing", res.getErrors().get(0).getError(0).getText());
         assertEquals("является частью сложного прилагательного с главным словом", res.getErrors().get(0).getError(1).getText());
         assertEquals("cod", res.getErrors().get(0).getError(2).getText());
-        assertEquals("smart", res.getErrors().get(0).getError(4).getText());
-        assertEquals("cod", res.getErrors().get(0).getError(6).getText());
-        assertEquals("имеют общее главное слово", res.getErrors().get(0).getError(7).getText());
-        assertEquals("sellers", res.getErrors().get(0).getError(8).getText());
-        assertEquals("smart", res.getErrors().get(0).getError(10).getText());
-        assertEquals(", должно находиться перед прилагательным", res.getErrors().get(0).getError(13).getText());
-        assertEquals("cod", res.getErrors().get(0).getError(14).getText());
+        assertEquals("smart", res.getErrors().get(0).getError(5).getText());
+        assertEquals("cod", res.getErrors().get(0).getError(7).getText());
+        assertEquals("имеют общее главное слово", res.getErrors().get(0).getError(8).getText());
+        assertEquals("sellers", res.getErrors().get(0).getError(9).getText());
+        assertEquals("smart", res.getErrors().get(0).getError(11).getText());
+        assertEquals(", должно находиться перед прилагательным", res.getErrors().get(0).getError(14).getText());
+        assertEquals("cod", res.getErrors().get(0).getError(15).getText());
     }
 
     // the beautiful books

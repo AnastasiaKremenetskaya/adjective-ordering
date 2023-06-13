@@ -243,18 +243,25 @@ class Solver(
         val zNodeLabel = getNodeLabel(Z)
 
         var errorParts = ArrayList<ErrorPart>()
+        var oneDescriptionPresents = false
+
         if (xNodeLabel != x_NodeLabel) {
+            oneDescriptionPresents = true
             errorParts.add(ErrorPart(xNodeLabel, "lexeme")) // X
             errorParts.add(ErrorPart(errorQuestion[0], "text")) // является частью сложного прилагательного с главным словом
             errorParts.add(ErrorPart(x_NodeLabel, "lexeme")) // X_
             errorParts.add(ErrorPart(errorQuestion[1], "text")) // ,
         }
         if (yNodeLabel != y_NodeLabel) {
+            oneDescriptionPresents = true
             errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
             errorParts.add(ErrorPart(errorQuestion[2], "text")) // является частью сложного прилагательного с главным словом
             errorParts.add(ErrorPart(y_NodeLabel, "lexeme")) // Y_
+            errorParts.add(ErrorPart(errorQuestion[1], "text")) // ,
         }
-        errorParts.add(ErrorPart(errorQuestion[3], "text")) // , при этом,
+        if (oneDescriptionPresents) {
+            errorParts.add(ErrorPart(errorQuestion[3], "text")) // при этом,
+        }
         errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
         errorParts.add(ErrorPart(errorQuestion[4], "text")) // и
         errorParts.add(ErrorPart(y_NodeLabel, "lexeme"))
@@ -499,7 +506,7 @@ class Solver(
                 "является частью сложного прилагательного с главным словом",
                 ",",
                 "является частью сложного прилагательного с главным словом",
-                ", при этом",
+                "при этом",
                 "и",
                 "имеют общее главное слово",
                 "и должны располагаться (вместе со всеми зависимыми словами) в порядке своих категорий:  прилагательное",
