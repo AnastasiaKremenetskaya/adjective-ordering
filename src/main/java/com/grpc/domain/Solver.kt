@@ -28,35 +28,36 @@ class Solver(
 
         //решение задачи - от наиболее краткого ответа до наиболее подробного - выбрать одно из трех
         val answer = DomainModel.decisionTree.main.getAnswer(model) //Получить тру/фолс ответ
-        if (answer) {
-            return arrayListOf()
-        }
 
         val trace =
             DomainModel.decisionTree.main.getResults(model) //Получить посещенные узлы по всему дереву - в порядке полного вычисления
 
-        var i: Int = trace.size - 1
-        if (trace.size > 2) {
-            i = trace.size - 2
+        if (answer) {
+            return arrayListOf()
         }
 
-        var errorQuestion = trace.get(i).node.additionalInfo["error_type"].toString()
-        if (errorQuestion.equals("null")) {
-            i = trace.size
-            while (i-- > 0) {
-                errorQuestion = trace.get(i).node.additionalInfo["error_type"].toString()
-                if (!errorQuestion.equals("null")) {
-                    break
-                }
+//        var i: Int = trace.size - 1
+//        if (trace.size > 2) {
+//            i = trace.size - 2
+//        }
+//
+        var errorQuestion = ""
+//        if (errorQuestion.equals("null")) {
+        var i = 0
+        while (i++ < trace.size) {
+            errorQuestion = trace.get(i).node.additionalInfo["error_type"].toString()
+            if (!errorQuestion.equals("null")) {
+                break
             }
         }
+//        }
 
         if (errorQuestion.equals(error_1)) {
             return getError1(
-                trace.get(i).variablesSnapshot["Y"],
-                trace.get(i).variablesSnapshot["Y_"],
                 trace.get(i).variablesSnapshot["X"],
                 trace.get(i).variablesSnapshot["X_"],
+                trace.get(i).variablesSnapshot["Y"],
+                trace.get(i).variablesSnapshot["Y_"],
                 trace.get(i).variablesSnapshot["z"],
                 ERRORS_EXPLANATION[lang]?.get(error_1),
             )
@@ -81,6 +82,13 @@ class Solver(
                 trace.get(i).variablesSnapshot["Y"],
                 trace.get(i).variablesSnapshot["info_z"],
                 ERRORS_EXPLANATION[lang]?.get(error_4),
+            )
+        }
+        if (errorQuestion.equals(error_8)) {
+            return getError8(
+                trace.get(i).variablesSnapshot["X"],
+                trace.get(i).variablesSnapshot["x_parent"],
+                ERRORS_EXPLANATION[lang]?.get(error_8),
             )
         }
 
@@ -179,7 +187,8 @@ class Solver(
     }
 
     private fun getNodeClass(decisionTreeVar: String): String {
-        val a = model.model.getResource(NAMESPACE + decisionTreeVar).asResource().getProperty(RDF.type).`object`.asNode().localName
+        val a = model.model.getResource(NAMESPACE + decisionTreeVar).asResource()
+            .getProperty(RDF.type).`object`.asNode().localName
         return POS[lang]?.get(a) ?: ""
     }
 
@@ -234,37 +243,31 @@ class Solver(
         val zNodeLabel = getNodeLabel(Z)
 
         var errorParts = ArrayList<ErrorPart>()
-        errorParts.add(ErrorPart(xNodeLabel, "lexeme")) // X
-        errorParts.add(ErrorPart(errorQuestion[0], "text")) // является
         if (xNodeLabel != x_NodeLabel) {
-            errorParts.add(ErrorPart(errorQuestion[1], "text")) // частью сложного прилагательного с главным словом
+            errorParts.add(ErrorPart(xNodeLabel, "lexeme")) // X
+            errorParts.add(ErrorPart(errorQuestion[0], "text")) // является частью сложного прилагательного с главным словом
             errorParts.add(ErrorPart(x_NodeLabel, "lexeme")) // X_
-        } else {
-            errorParts.add(ErrorPart(errorQuestion[2], "text")) // простым прилагательным
+            errorParts.add(ErrorPart(errorQuestion[1], "text")) // ,
         }
-        errorParts.add(ErrorPart(errorQuestion[3], "text")) // ,
-        errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[4], "text")) // является
         if (yNodeLabel != y_NodeLabel) {
-            errorParts.add(ErrorPart(errorQuestion[5], "text")) // частью сложного прилагательного с главным словом
+            errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
+            errorParts.add(ErrorPart(errorQuestion[2], "text")) // является частью сложного прилагательного с главным словом
             errorParts.add(ErrorPart(y_NodeLabel, "lexeme")) // Y_
-        } else {
-            errorParts.add(ErrorPart(errorQuestion[6], "text")) // простым прилагательным
         }
-        errorParts.add(ErrorPart(errorQuestion[7], "text"))
+        errorParts.add(ErrorPart(errorQuestion[3], "text")) // , при этом,
         errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[8], "text"))
+        errorParts.add(ErrorPart(errorQuestion[4], "text")) // и
+        errorParts.add(ErrorPart(y_NodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[5], "text")) // имеют общее главное слово
+        errorParts.add(ErrorPart(zNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[6], "text")) // и должны располагаться (вместе со всеми зависимыми словами) в порядке своих категорий:  прилагательное
+        errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[7], "text")) // , описывающее
+        errorParts.add(ErrorPart(xNodeHypernym, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[8], "text")) // , должно находиться перед прилагательным
         errorParts.add(ErrorPart(y_NodeLabel, "lexeme"))
         errorParts.add(ErrorPart(errorQuestion[9], "text"))
-        errorParts.add(ErrorPart(zNodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[10], "text"))
-        errorParts.add(ErrorPart(x_NodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[11], "text"))
-        errorParts.add(ErrorPart(xNodeHypernym, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[12], "text"))
-        errorParts.add(ErrorPart(y_NodeLabel, "lexeme"))
-        errorParts.add(ErrorPart(errorQuestion[13], "text"))
-        errorParts.add(ErrorPart(yNodeHypernym, "lexeme"))
+        errorParts.add(ErrorPart(yNodeHypernym, "lexeme")) // , описывающим
 
         return errorParts
     }
@@ -437,7 +440,28 @@ class Solver(
         return errorParts
     }
 
-    fun deleteFile(path:String) {
+    private fun getError8(
+        X: String?,
+        Y: String?,
+        errorQuestion: ArrayList<String>?
+    ): ArrayList<ErrorPart> {
+        if (X.isNullOrEmpty() || Y.isNullOrEmpty() || errorQuestion.isNullOrEmpty()) {
+            return ArrayList<ErrorPart>()
+        }
+
+        val xNodeLabel = getNodeLabel(X)
+        val yNodeLabel = getNodeLabel(Y)
+
+        var errorParts = ArrayList<ErrorPart>()
+        errorParts.add(ErrorPart(xNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[0], "text"))
+        errorParts.add(ErrorPart(yNodeLabel, "lexeme"))
+        errorParts.add(ErrorPart(errorQuestion[1], "text"))
+
+        return errorParts
+    }
+
+    fun deleteFile(path: String) {
         val file = File(path)
 
         val result = file.delete()
@@ -468,16 +492,13 @@ class Solver(
         private var error_5 = "error_5"
         private var error_6 = "error_6"
         private var error_7 = "error_7"
+        private var error_8 = "error_8" // разделение compound adj
 
         private val ERRORS_EXPLANATION_RU = mapOf(
             error_1 to arrayListOf(
-                "является",
-                "частью сложного прилагательного с главным словом",
-                "простым прилагательным",
+                "является частью сложного прилагательного с главным словом",
                 ",",
-                "является",
-                "частью сложного прилагательного с главным словом",
-                "простым прилагательным",
+                "является частью сложного прилагательного с главным словом",
                 ", при этом",
                 "и",
                 "имеют общее главное слово",
@@ -524,6 +545,10 @@ class Solver(
                 ", а",
                 "- это прилагательное с главным словом",
                 ", поэтому они не являются частями одного сложного прилагательного",
+            ),
+            error_8 to arrayListOf(
+                "должно находиться перед",
+                "потому что части сложного прилагательного должны идти подряд",
             ),
         )
 
@@ -582,7 +607,11 @@ class Solver(
                 "and",
                 "- is an adjective dependent from",
                 "that's why mentioned words are not the parts of similar compound adjective",
-            )
+            ),
+            error_8 to arrayListOf(
+                "should precede",
+                "because parts of compound adjective should be consecutive",
+            ),
         )
 
         private val ERRORS_EXPLANATION = mapOf(

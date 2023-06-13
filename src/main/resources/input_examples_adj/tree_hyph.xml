@@ -47,17 +47,7 @@ y_parent">
                             <Outcome value="found">
                                 <QuestionNode alias="Y - простое прилагательное?" type="bool" isSwitch="false">
                                     <Expression>
-                                        <ExistenceQuantifier varName="parent">
-                                            <CheckClass>
-                                                <Variable name="parent"/>
-                                                <Class name="NOUN"/>
-                                            </CheckClass>
-                                            <CheckRelationship>
-                                                <Relationship name="isChild"/>
-                                                <DecisionTreeVar name="Y"/>
-                                                <Variable name="parent"/>
-                                            </CheckRelationship>
-                                        </ExistenceQuantifier>
+                                        <LogicalAnd><ExistenceQuantifier varName="parent"><CheckClass><Variable name="parent"/><Class name="NOUN"/></CheckClass><CheckRelationship><Relationship name="isChild"/><DecisionTreeVar name="Y"/><Variable name="parent"/></CheckRelationship></ExistenceQuantifier><LogicalNot><ExistenceQuantifier varName="child"><CheckClass><Variable name="child"/><Class name="ADJ"/></CheckClass><CheckRelationship><Relationship name="isParent"/><DecisionTreeVar name="Y"/><Variable name="child"/></CheckRelationship></ExistenceQuantifier></LogicalNot></LogicalAnd>
                                     </Expression>
                                     <Outcome value="False">
                                         <QuestionNode alias="Y ребенок X?" type="bool" isSwitch="false">
