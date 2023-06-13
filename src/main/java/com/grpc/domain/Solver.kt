@@ -43,7 +43,7 @@ class Solver(
 //
         var errorQuestion = ""
 //        if (errorQuestion.equals("null")) {
-        var i = 0
+        var i = -1
         while (i++ < trace.size) {
             errorQuestion = trace.get(i).node.additionalInfo["error_type"].toString()
             if (!errorQuestion.equals("null")) {

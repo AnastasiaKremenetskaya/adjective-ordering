@@ -282,4 +282,22 @@ public class ValidateTokenPositionTest {
         assertEquals(", должно находиться перед прилагательным", res.getErrors().get(0).getError(13).getText());
         assertEquals("cod", res.getErrors().get(0).getError(14).getText());
     }
+
+    // the beautiful books
+    @Test
+    public void testError2WrongDeterminer() throws IOException {
+        String task = "@prefix ns1: <http://www.vstu.ru/poas/code#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n# det wrong order\n\nns1:item_0 a ns1:ADJ ;\n    rdfs:label \"beautiful\" ;\n    ns1:hasHypernym ns1:Material ;\n    ns1:isChild ns1:item_2 .\n\nns1:item_1 a ns1:DET ;\n    rdfs:label \"The\" ;\n    ns1:isChild ns1:item_2 .\n\nns1:item_2 a ns1:NOUN ;\n    rdfs:label \"books\" .\n    ";
+        ArrayList<String> wordsToSelect = new ArrayList<>();
+        wordsToSelect.add("The");
+
+        LinkedHashMap<String, String> studentAnswerMap = new LinkedHashMap<>();
+
+        studentAnswerMap.put("item_2", "books");
+        studentAnswerMap.put("", "The");
+
+        ValidateTokenPositionResult res = validator.checkTokenPosition(lang, task, studentAnswerMap, "The", wordsToSelect);
+        assertEquals("The", res.getErrors().get(0).getError(0).getText());
+        assertEquals("должно находиться перед", res.getErrors().get(0).getError(1).getText());
+        assertEquals("books", res.getErrors().get(0).getError(2).getText());
+    }
 }
