@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.*;
 
 import static com.grpc.domain.Solver.*;
+import static java.lang.Integer.parseInt;
 
 public final class ValidateTokenPosition {
     private static ValidateTokenPosition INSTANCE;
@@ -188,21 +189,36 @@ public final class ValidateTokenPosition {
         String hypothesysId = "";
 
         int i = 0;
+        String prevWordId = "";
+
         for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
             if (i > hypotheses.size()) {
                 break;
             }
             if (entry.getValue().equals(tokenToCheck)) {
-                String id = hypotheses.get(i).getLocalName().toString();
-                newStudentAnswer.put(id, tokenToCheck);
+                Resource tokenToCheckResource = hypotheses.get(i);
+                // Если есть гипотезы (id слов должны быть по порядку)
+                if (hypotheses.size() > 1 && !prevWordId.isEmpty()) {
+                    String prevWordIdNumberStr = prevWordId.replaceAll("[^0-9]", "");
+                    Integer prevWordIdNumber = parseInt(prevWordIdNumberStr);
+                    for (Integer j = 0; j < hypotheses.size(); j++) {
+                        String name = hypotheses.get(j).getLocalName().toString();
+                        String numberOnly = name.replaceAll("[^0-9]", "");
+                        if (parseInt(numberOnly) > prevWordIdNumber) {
+                            tokenToCheckResource = hypotheses.get(j);
+                        }
+                    };
+                }
+                newStudentAnswer.put(tokenToCheckResource.getLocalName().toString(), tokenToCheck);
                 if (entry.getKey().isEmpty()) {
-                    newWordResource = hypotheses.get(i);
-                    hypothesysId = id;
+                    newWordResource = tokenToCheckResource;
+                    hypothesysId = tokenToCheckResource.getLocalName().toString();
                 }
                 i++;
             } else {
                 newStudentAnswer.put(entry.getKey(), entry.getValue());
             }
+            prevWordId = entry.getKey();
         }
 
         Model hypothesisModel = buildModelFromStudentAnswer(newStudentAnswer, newWordResource);
@@ -215,7 +231,9 @@ public final class ValidateTokenPosition {
         ArrayList<ErrorPart> res = Companion.getInstance().solve(language.name(), DIR_PATH_TO_TASK, TTL_FILENAME);
 
         ArrayList<Error> errors = new ArrayList<>();
-        errors.add(new Error(res));
+        if (!res.isEmpty()) {
+            errors.add(new Error(res));
+        }
 
         if (res.isEmpty()) {
             wordsToSelect.remove(tokenToCheck);

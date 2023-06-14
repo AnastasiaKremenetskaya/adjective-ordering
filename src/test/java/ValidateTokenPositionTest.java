@@ -300,4 +300,36 @@ public class ValidateTokenPositionTest {
         assertEquals("должно находиться перед", res.getErrors().get(0).getError(1).getText());
         assertEquals("books", res.getErrors().get(0).getError(2).getText());
     }
+
+    // amazing big-amazing-salt-cod sellers
+    @Test
+    public void testCorrectRepeatingWordPrePosition() throws IOException {
+        String task = "@prefix ns1:  <http://www.vstu.ru/poas/code#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\nns1:item_0\n    a               ns1:ADJ ;\n    rdfs:label      \"amazing\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild     ns1:item_4 .\n\nns1:item_5\n    a               ns1:ADJ ;\n    rdfs:label      \"big\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild     ns1:item_1 .\n\nns1:item_1\n    a               ns1:ADJ ;\n    rdfs:label      \"amazing\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild     ns1:item_2 .\n\nns1:item_2\n    a               ns1:ADJ ;\n    rdfs:label      \"salt\" ;\n    ns1:hasHypernym ns1:Material ;\n    ns1:isChild     ns1:item_3 .\n\nns1:item_3\n    a               ns1:ADJ ;\n    rdfs:label      \"cod\" ;\n    ns1:hasHypernym ns1:Material ;\n    ns1:isChild     ns1:item_4 .\n\nns1:item_4\n    a          ns1:NOUN ;\n    rdfs:label \"sellers\" .";
+        ArrayList<String> wordsToSelect = new ArrayList<>();
+        wordsToSelect.add("amazing");
+
+        LinkedHashMap<String, String> studentAnswerMap = new LinkedHashMap<>();
+        studentAnswerMap.put("", "amazing");
+        studentAnswerMap.put("item_1", "big");
+        studentAnswerMap.put("item_5", "sellers");
+
+        ValidateTokenPositionResult res = validator.checkTokenPosition(lang, task, studentAnswerMap, "amazing", wordsToSelect);
+        assertEquals(res.getErrors().size(), 0);
+    }
+
+    // amazing big-amazing-salt-cod sellers
+    @Test
+    public void testCorrectRepeatingWordPostPosition() throws IOException {
+        String task = "@prefix ns1:  <http://www.vstu.ru/poas/code#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\nns1:item_0\n    a               ns1:ADJ ;\n    rdfs:label      \"amazing\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild     ns1:item_5 .\n\nns1:item_1\n    a               ns1:ADJ ;\n    rdfs:label      \"big\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild     ns1:item_2 .\n\nns1:item_2\n    a               ns1:ADJ ;\n    rdfs:label      \"amazing\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild     ns1:item_3 .\n\nns1:item_3\n    a               ns1:ADJ ;\n    rdfs:label      \"salt\" ;\n    ns1:hasHypernym ns1:Material ;\n    ns1:isChild     ns1:item_4 .\n\nns1:item_4\n    a               ns1:ADJ ;\n    rdfs:label      \"cod\" ;\n    ns1:hasHypernym ns1:Material ;\n    ns1:isChild     ns1:item_5 .\n\nns1:item_5\n    a          ns1:NOUN ;\n    rdfs:label \"sellers\" .";
+        ArrayList<String> wordsToSelect = new ArrayList<>();
+        wordsToSelect.add("amazing");
+
+        LinkedHashMap<String, String> studentAnswerMap = new LinkedHashMap<>();
+        studentAnswerMap.put("item_1", "big");
+        studentAnswerMap.put("", "amazing");
+        studentAnswerMap.put("item_5", "sellers");
+
+        ValidateTokenPositionResult res = validator.checkTokenPosition(lang, task, studentAnswerMap, "amazing", wordsToSelect);
+        assertEquals(res.getErrors().size(), 0);
+    }
 }
