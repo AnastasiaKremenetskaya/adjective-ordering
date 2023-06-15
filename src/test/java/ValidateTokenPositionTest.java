@@ -196,6 +196,25 @@ public class ValidateTokenPositionTest {
     }
 
     @Test
+    public void testErrorShouldBeTwoHyphens() throws IOException {
+        String task = "@prefix ns1: <http://www.vstu.ru/poas/code#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\nns1:item_0 a ns1:ADJ ;\n    rdfs:label \"amazingly\" ;\n        ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild ns1:item_2 .\n\nns1:item_3 a ns1:ADJ ;\n    rdfs:label \"salt\" ;\n            ns1:hasHypernym ns1:Material ;\nns1:isChild ns1:item_5 .\n\nns1:item_2 a ns1:ADJ ;\n    rdfs:label \"smart\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild ns1:item_6 .\n\nns1:item_5 a ns1:ADJ ;\n    rdfs:label \"cod\" ;\n    ns1:hasHypernym ns1:Material ;\n    ns1:isChild ns1:item_6 .\n\nns1:item_6 a ns1:NOUN ;\n    rdfs:label \"sellers\" .";
+        ArrayList<String> wordsToSelect = new ArrayList<>();
+        wordsToSelect.add("-");
+
+        LinkedHashMap<String, String> studentAnswerMap = new LinkedHashMap<>();
+        studentAnswerMap.put("item_0", "amazingly");
+        studentAnswerMap.put("item_2", "smart");
+        studentAnswerMap.put("item_3", "salt");
+        studentAnswerMap.put("item_5", "cod");
+        studentAnswerMap.put("item_6", "sellers");
+
+        ValidateTokenPositionResult res = validator.checkTokenPosition(lang, task, studentAnswerMap, "", wordsToSelect);
+        assertEquals(2, res.getErrors().size());
+        assertEquals(4, res.getErrors().get(0).getErrorList().size());
+        assertEquals(4, res.getErrors().get(1).getErrorList().size());
+    }
+
+    @Test
     public void testError1WrongMainWord() throws IOException {
         String task = "@prefix ns1: <http://www.vstu.ru/poas/code#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\nns1:item_0 a ns1:ADJ ;\n    rdfs:label \"amazingly\" ;\n        ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild ns1:item_2 .\n\nns1:item_3 a ns1:ADJ ;\n    rdfs:label \"salt\" ;\n            ns1:hasHypernym ns1:Material ;\nns1:isChild ns1:item_5 .\n\nns1:item_2 a ns1:ADJ ;\n    rdfs:label \"smart\" ;\n    ns1:hasHypernym ns1:Opinion ;\n    ns1:isChild ns1:item_6 .\n\nns1:item_5 a ns1:ADJ ;\n    rdfs:label \"cod\" ;\n    ns1:hasHypernym ns1:Material ;\n    ns1:isChild ns1:item_6 .\n\nns1:item_6 a ns1:NOUN ;\n    rdfs:label \"sellers\" .";
         ArrayList<String> wordsToSelect = new ArrayList<>();

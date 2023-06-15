@@ -472,9 +472,7 @@ class Solver(
         val file = File(path)
 
         val result = file.delete()
-        if (result) {
-            println("Deletion succeeded.")
-        } else {
+        if (!result) {
             println("Deletion failed.")
         }
     }

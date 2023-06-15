@@ -35,10 +35,10 @@ public class ValidateTokenPositionResult {
         this.studentAnswer = convertedStudentAnswer;
 
         List<com.gpch.grpc.protobuf.Error> convertedErrors = new ArrayList<>();
-        List<com.gpch.grpc.protobuf.ErrorPart> convertedErrorParts = new ArrayList<>();
-        com.gpch.grpc.protobuf.Error.Builder errBuilder = com.gpch.grpc.protobuf.Error.newBuilder();
         com.gpch.grpc.protobuf.ErrorPart.Builder errPartBuilder = com.gpch.grpc.protobuf.ErrorPart.newBuilder();
         for (Error err : errors) {
+            com.gpch.grpc.protobuf.Error.Builder errBuilder = com.gpch.grpc.protobuf.Error.newBuilder();
+            List<com.gpch.grpc.protobuf.ErrorPart> convertedErrorParts = new ArrayList<>();
             for (responses.ErrorPart errorPart : err.getError()) {
                 errPartBuilder.setText(errorPart.getText());
                 errPartBuilder.setType(errorPart.getType());

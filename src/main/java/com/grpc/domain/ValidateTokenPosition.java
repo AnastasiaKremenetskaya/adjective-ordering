@@ -278,7 +278,6 @@ public final class ValidateTokenPosition {
                 TTL_FILENAME
         );
         ArrayList<Error> errors = new ArrayList<>();
-        ArrayList<ErrorPart> errorParts = new ArrayList<>();
 
         boolean nextShouldBeHyphen = false;
         String leftAdj = "";
@@ -286,10 +285,14 @@ public final class ValidateTokenPosition {
         for (Map.Entry<String, String> entry : studentAnswer.entrySet()) {
             if (nextShouldBeHyphen) {
                 if (!entry.getValue().equals("-")) {
+                    ArrayList<ErrorPart> errorParts = new ArrayList<>();
+
                     errorParts.add(new ErrorPart(FINISH_ERR.get(language).get(0), "text"));
                     errorParts.add(new ErrorPart(leftAdj, "lexeme"));
                     errorParts.add(new ErrorPart(FINISH_ERR.get(language).get(1), "text"));
                     errorParts.add(new ErrorPart(leftAdjParent, "lexeme"));
+
+                    errors.add(new Error(errorParts));
                 }
                 nextShouldBeHyphen = false;
             }
@@ -299,8 +302,6 @@ public final class ValidateTokenPosition {
                 nextShouldBeHyphen = true;
             }
         }
-
-        errors.add(new Error(errorParts));
 
         return new ValidateTokenPositionResult(
                 errors,
