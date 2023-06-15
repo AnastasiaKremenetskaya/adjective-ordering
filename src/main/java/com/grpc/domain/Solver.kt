@@ -561,13 +561,9 @@ class Solver(
 
         private val ERRORS_EXPLANATION_EN = mapOf(
             error_1 to arrayListOf(
-                "is",
-                "a part of compound adjective with word",
-                "an adjective",
+                "is a part of compound adjective with word",
                 ",",
-                "is",
-                "a part of compound adjective with word",
-                "an adjective",
+                "is a part of compound adjective with word",
                 "so",
                 "and",
                 "have common word they are related to",
